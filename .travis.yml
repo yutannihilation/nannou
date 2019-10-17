@@ -20,6 +20,8 @@ matrix:
 
         - name: "Validate doc"
           rust: stable
+          cache: 
+            cargo: false
           script:
               - cargo doc --no-deps -v
 

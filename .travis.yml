@@ -1,8 +1,5 @@
 language: rust
-cache:
-    directories:
-        - $HOME/.cargo
-        - $HOME/.rustup
+cache: cargo
 before_cache:
     - rm -rf /home/travis/.cargo/registry/src/
 

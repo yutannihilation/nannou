@@ -1,7 +1,8 @@
 language: rust
 cache: cargo
 before_cache:
-    - rm -rf /home/travis/.cargo/registry/src/
+    - rm -rf $TRAVIS_HOME/.cargo/registry/src/
+    - rm -rf $TRAVIS_HOME/.cache/sccache
 
 addons:
     apt:

@@ -319,7 +319,7 @@ impl BufferImage {
     ///
     /// Note: The given callback will not be called until the memory is mapped and the device is
     /// polled. You should not rely on the callback being called immediately.
-    pub async fn read(&self) -> Result<ImageReadMapping, wgpu::BufferAsyncErr> {
+    pub async fn read(&self) -> Result<ImageReadMapping, wgpu::BufferAsyncError> {
         let size = self.size;
         let color_type = self.color_type;
         let mapping = self.buffer.read().await?;

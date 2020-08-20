@@ -20,9 +20,8 @@ pub struct DepthStencilAttachmentDescriptorBuilder<'a> {
 }
 
 impl<'a> ColorAttachmentDescriptorBuilder<'a> {
-    pub const DEFAULT_LOAD_OP: wgpu::LoadOp = wgpu::LoadOp::Clear;
-    pub const DEFAULT_STORE_OP: wgpu::StoreOp = wgpu::StoreOp::Store;
-    pub const DEFAULT_CLEAR_COLOR: wgpu::Color = wgpu::Color::TRANSPARENT;
+    pub const DEFAULT_LOAD_OP: wgpu::LoadOp<f32> = wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT);
+    pub const DEFAULT_STORE_OP: bool = true;
 
     /// Begin building a new render pass color attachment descriptor.
     fn new(attachment: &'a wgpu::TextureViewHandle) -> Self {
@@ -30,9 +29,10 @@ impl<'a> ColorAttachmentDescriptorBuilder<'a> {
             descriptor: wgpu::RenderPassColorAttachmentDescriptor {
                 attachment,
                 resolve_target: None,
-                load_op: Self::DEFAULT_LOAD_OP,
-                store_op: Self::DEFAULT_STORE_OP,
-                clear_color: Self::DEFAULT_CLEAR_COLOR,
+                ops: wgpu::Operations {
+                    load: Self::DEFAULT_LOAD_OP,
+                    store: Self::DEFAULT_STORE_OP,
+                },
             },
         }
     }
@@ -50,72 +50,72 @@ impl<'a> ColorAttachmentDescriptorBuilder<'a> {
     }
 
     /// The beginning-of-pass load operation for this color attachment.
-    pub fn load_op(mut self, load_op: wgpu::LoadOp) -> Self {
-        self.descriptor.load_op = load_op;
+    pub fn load_op(mut self, load_op: wgpu::LoadOp<f32>) -> Self {
+        self.descriptor.ops.load = load_op;
         self
     }
 
     /// The end-of-pass store operation for this color attachment.
-    pub fn store_op(mut self, store_op: wgpu::StoreOp) -> Self {
-        self.descriptor.store_op = store_op;
+    pub fn store_op(mut self, store: bool) -> Self {
+        self.descriptor.ops.store = store;
         self
     }
 
     /// The color that will be assigned to every pixel of this attachment when cleared.
     pub fn clear_color(mut self, color: wgpu::Color) -> Self {
-        self.descriptor.clear_color = color;
+        self.descriptor.ops.load = wgpu::LoadOp::Clear(color);
         self
     }
 }
 
 impl<'a> DepthStencilAttachmentDescriptorBuilder<'a> {
-    pub const DEFAULT_DEPTH_LOAD_OP: wgpu::LoadOp = wgpu::LoadOp::Clear;
-    pub const DEFAULT_DEPTH_STORE_OP: wgpu::StoreOp = wgpu::StoreOp::Store;
-    pub const DEFAULT_CLEAR_DEPTH: f32 = 1.0;
-    pub const DEFAULT_STENCIL_LOAD_OP: wgpu::LoadOp = wgpu::LoadOp::Clear;
-    pub const DEFAULT_STENCIL_STORE_OP: wgpu::StoreOp = wgpu::StoreOp::Store;
-    pub const DEFAULT_CLEAR_STENCIL: u32 = 0;
+    pub const DEFAULT_DEPTH_LOAD_OP: wgpu::LoadOp<f32> = wgpu::LoadOp::Clear(1.0);
+    pub const DEFAULT_DEPTH_STORE_OP: bool = true;
+    pub const DEFAULT_STENCIL_LOAD_OP: wgpu::LoadOp<u32> = wgpu::LoadOp::Clear(0);
+    pub const DEFAULT_STENCIL_STORE_OP: bool = true;
 
     fn new(attachment: &'a wgpu::TextureViewHandle) -> Self {
         DepthStencilAttachmentDescriptorBuilder {
             descriptor: wgpu::RenderPassDepthStencilAttachmentDescriptor {
                 attachment,
-                depth_load_op: Self::DEFAULT_DEPTH_LOAD_OP,
-                depth_store_op: Self::DEFAULT_DEPTH_STORE_OP,
-                clear_depth: Self::DEFAULT_CLEAR_DEPTH,
-                stencil_load_op: Self::DEFAULT_STENCIL_LOAD_OP,
-                stencil_store_op: Self::DEFAULT_STENCIL_STORE_OP,
-                clear_stencil: Self::DEFAULT_CLEAR_STENCIL,
+                depth_ops: Some(wgpu::Operations {
+                    load: Self::DEFAULT_DEPTH_LOAD_OP,
+                    store: Self::DEFAULT_DEPTH_STORE_OP,
+                }),
+                stencil_ops: Some(wgpu::Operations {
+                    load: Self::DEFAULT_DEPTH_LOAD_OP,
+                    store: Self::DEFAULT_DEPTH_STORE_OP,
+                }),
             },
         }
     }
 
     /// The beginning-of-pass load operation for this depth attachment.
-    pub fn depth_load_op(mut self, load_op: wgpu::LoadOp) -> Self {
-        self.descriptor.depth_load_op = load_op;
+    pub fn depth_load_op(mut self, load_op: wgpu::LoadOp<f32>) -> Self {
+        self.descriptor.depth_ops.load = load_op;
         self
     }
 
     /// The end-of-pass store operation for this depth attachment.
-    pub fn depth_store_op(mut self, store_op: wgpu::StoreOp) -> Self {
-        self.descriptor.depth_store_op = store_op;
+    pub fn depth_store_op(mut self, store_op: bool) -> Self {
+        self.descriptor.depth_ops.store = store_op;
         self
     }
 
     /// The value that will be assigned to every pixel of this depth attachment when cleared.
     pub fn clear_depth(mut self, depth: f32) -> Self {
-        self.descriptor.clear_depth = depth;
+        self.descriptor.depth_ops.load = wgpu::LoadOp::Clear(depth);
         self
     }
 
     /// The beginning-of-pass load operation for this stencil attachment.
-    pub fn stencil_load_op(mut self, load_op: wgpu::LoadOp) -> Self {
-        self.descriptor.stencil_load_op = load_op;
+    pub fn stencil_load_op(mut self, load_op: wgpu::LoadOp<u32>) -> Self {
+        self.descriptor.stencil_ops.load = load_op;
         self
     }
 
     /// The end-of-pass store operation for this stencil attachment.
-    pub fn stencil_store_op(mut self, store_op: wgpu::StoreOp) -> Self {
+    pub fn stencil_store_op(mut self, store_op: bool) -> Self {
         self.descriptor.stencil_store_op = store_op;
         self
     }
@@ -128,24 +128,17 @@ impl<'a> DepthStencilAttachmentDescriptorBuilder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub const DEFAULT_COLOR_LOAD_OP: wgpu::LoadOp =
+    pub const DEFAULT_LOAD_OP: wgpu::LoadOp<f32> =
         ColorAttachmentDescriptorBuilder::DEFAULT_LOAD_OP;
-    pub const DEFAULT_COLOR_STORE_OP: wgpu::StoreOp =
-        ColorAttachmentDescriptorBuilder::DEFAULT_STORE_OP;
-    pub const DEFAULT_CLEAR_COLOR: wgpu::Color =
-        ColorAttachmentDescriptorBuilder::DEFAULT_CLEAR_COLOR;
-    pub const DEFAULT_DEPTH_LOAD_OP: wgpu::LoadOp =
+    pub const DEFAULT_STORE_OP: bool = ColorAttachmentDescriptorBuilder::DEFAULT_STORE_OP;
+    pub const DEFAULT_DEPTH_LOAD_OP: wgpu::LoadOp<f32> =
         DepthStencilAttachmentDescriptorBuilder::DEFAULT_DEPTH_LOAD_OP;
-    pub const DEFAULT_DEPTH_STORE_OP: wgpu::StoreOp =
+    pub const DEFAULT_DEPTH_STORE_OP: bool =
         DepthStencilAttachmentDescriptorBuilder::DEFAULT_DEPTH_STORE_OP;
-    pub const DEFAULT_CLEAR_DEPTH: f32 =
-        DepthStencilAttachmentDescriptorBuilder::DEFAULT_CLEAR_DEPTH;
-    pub const DEFAULT_STENCIL_LOAD_OP: wgpu::LoadOp =
+    pub const DEFAULT_STENCIL_LOAD_OP: wgpu::LoadOp<u32> =
         DepthStencilAttachmentDescriptorBuilder::DEFAULT_STENCIL_LOAD_OP;
-    pub const DEFAULT_STENCIL_STORE_OP: wgpu::StoreOp =
+    pub const DEFAULT_STENCIL_STORE_OP: bool =
         DepthStencilAttachmentDescriptorBuilder::DEFAULT_STENCIL_STORE_OP;
-    pub const DEFAULT_CLEAR_STENCIL: u32 =
-        DepthStencilAttachmentDescriptorBuilder::DEFAULT_CLEAR_STENCIL;
 
     /// Begin building a new render pass descriptor.
     pub fn new() -> Self {

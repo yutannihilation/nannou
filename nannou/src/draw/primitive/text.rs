@@ -240,12 +240,12 @@ where
     }
 }
 
-impl draw::renderer::RenderPrimitive for Text<f32> {
+impl<'a> draw::renderer::RenderPrimitive<'a> for Text<f32> {
     fn render_primitive(
         self,
         ctxt: draw::renderer::RenderContext,
         mesh: &mut draw::Mesh,
-    ) -> draw::renderer::PrimitiveRender {
+    ) -> draw::renderer::PrimitiveRender<'a> {
         let Text {
             spatial,
             style,
@@ -413,13 +413,13 @@ impl<S> SetColor<ColorScalar> for Text<S> {
 
 // Primitive conversions.
 
-impl<S> From<Text<S>> for Primitive<S> {
+impl<'a, S> From<Text<S>> for Primitive<'a, S> {
     fn from(prim: Text<S>) -> Self {
         Primitive::Text(prim)
     }
 }
 
-impl<S> Into<Option<Text<S>>> for Primitive<S> {
+impl<'a, S> Into<Option<Text<S>>> for Primitive<'a, S> {
     fn into(self) -> Option<Text<S>> {
         match self {
             Primitive::Text(prim) => Some(prim),

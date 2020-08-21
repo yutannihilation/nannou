@@ -63,19 +63,19 @@ pub struct PolygonOptions<S = geom::scalar::Default> {
 
 /// A polygon with vertices already submitted.
 #[derive(Clone, Debug)]
-pub struct Polygon<S = geom::scalar::Default> {
+pub struct Polygon<'a, S = geom::scalar::Default> {
     opts: PolygonOptions<S>,
     path_event_src: PathEventSource,
-    texture_view: Option<wgpu::TextureView>,
+    texture_view: Option<wgpu::TextureView<'a>>,
 }
 
 /// Initialised drawing state for a polygon.
 pub type DrawingPolygonInit<'a, S = geom::scalar::Default> = Drawing<'a, PolygonInit<S>, S>;
 
 /// Initialised drawing state for a polygon.
-pub type DrawingPolygon<'a, S = geom::scalar::Default> = Drawing<'a, Polygon<S>, S>;
+pub type DrawingPolygon<'a, S = geom::scalar::Default> = Drawing<'a, Polygon<'a, S>, S>;
 
-impl<S> PolygonInit<S> {
+impl<'a, S> PolygonInit<S> {
     /// Stroke the outline with the given color.
     pub fn stroke<C>(self, color: C) -> Self
     where
@@ -153,7 +153,7 @@ impl<S> PolygonInit<S> {
         ctxt: DrawingContext<S>,
         view: &dyn wgpu::ToTextureView,
         points: I,
-    ) -> Polygon<S>
+    ) -> Polygon<'a, S>
     where
         S: BaseFloat,
         I: IntoIterator<Item = (P, T)>,
@@ -267,13 +267,13 @@ pub fn render_points_themed<I>(
     );
 }
 
-impl Polygon<f32> {
+impl<'a> Polygon<'a, f32> {
     pub(crate) fn render_themed(
         self,
         ctxt: draw::renderer::RenderContext,
         mesh: &mut draw::Mesh,
         theme_primitive: &draw::theme::Primitive,
-    ) -> draw::renderer::PrimitiveRender {
+    ) -> draw::renderer::PrimitiveRender<'a> {
         let Polygon {
             path_event_src,
             opts:
@@ -439,12 +439,12 @@ impl Polygon<f32> {
     }
 }
 
-impl draw::renderer::RenderPrimitive for Polygon<f32> {
+impl<'a> draw::renderer::RenderPrimitive<'a> for Polygon<'a, f32> {
     fn render_primitive(
         self,
         ctxt: draw::renderer::RenderContext,
         mesh: &mut draw::Mesh,
-    ) -> draw::renderer::PrimitiveRender {
+    ) -> draw::renderer::PrimitiveRender<'a> {
         self.render_themed(ctxt, mesh, &draw::theme::Primitive::Polygon)
     }
 }
@@ -452,8 +452,8 @@ impl draw::renderer::RenderPrimitive for Polygon<f32> {
 impl<'a, S, T> Drawing<'a, T, S>
 where
     S: BaseFloat,
-    T: SetPolygon<S> + Into<Primitive<S>>,
-    Primitive<S>: Into<Option<T>>,
+    T: SetPolygon<S> + Into<Primitive<'a, S>>,
+    Primitive<'a, S>: Into<Option<T>>,
 {
     /// Specify no fill color and in turn no fill tessellation for the polygon.
     pub fn no_fill(self) -> Self {
@@ -603,37 +603,37 @@ impl<S> SetStroke for PolygonInit<S> {
     }
 }
 
-impl<S> SetOrientation<S> for Polygon<S> {
+impl<'a, S> SetOrientation<S> for Polygon<'a, S> {
     fn properties(&mut self) -> &mut orientation::Properties<S> {
         SetOrientation::properties(&mut self.opts.orientation)
     }
 }
 
-impl<S> SetPosition<S> for Polygon<S> {
+impl<'a, S> SetPosition<S> for Polygon<'a, S> {
     fn properties(&mut self) -> &mut position::Properties<S> {
         SetPosition::properties(&mut self.opts.position)
     }
 }
 
-impl<S> SetColor<ColorScalar> for Polygon<S> {
+impl<'a, S> SetColor<ColorScalar> for Polygon<'a, S> {
     fn rgba_mut(&mut self) -> &mut Option<LinSrgba> {
         SetColor::rgba_mut(&mut self.opts.color)
     }
 }
 
-impl<S> From<PolygonInit<S>> for Primitive<S> {
+impl<'a, S> From<PolygonInit<S>> for Primitive<'a, S> {
     fn from(prim: PolygonInit<S>) -> Self {
         Primitive::PolygonInit(prim)
     }
 }
 
-impl<S> From<Polygon<S>> for Primitive<S> {
+impl<'a, S> From<Polygon<'a, S>> for Primitive<'a, S> {
     fn from(prim: Polygon<S>) -> Self {
         Primitive::Polygon(prim)
     }
 }
 
-impl<S> Into<Option<PolygonInit<S>>> for Primitive<S> {
+impl<'a, S> Into<Option<PolygonInit<S>>> for Primitive<'a, S> {
     fn into(self) -> Option<PolygonInit<S>> {
         match self {
             Primitive::PolygonInit(prim) => Some(prim),
@@ -642,8 +642,8 @@ impl<S> Into<Option<PolygonInit<S>>> for Primitive<S> {
     }
 }
 
-impl<S> Into<Option<Polygon<S>>> for Primitive<S> {
-    fn into(self) -> Option<Polygon<S>> {
+impl<'a, S> Into<Option<Polygon<'a, S>>> for Primitive<'a, S> {
+    fn into(self) -> Option<Polygon<'a, S>> {
         match self {
             Primitive::Polygon(prim) => Some(prim),
             _ => None,

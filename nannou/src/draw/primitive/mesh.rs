@@ -15,14 +15,14 @@ pub struct Vertexless;
 
 /// Properties related to drawing an arbitrary mesh of colours, geometry and texture.
 #[derive(Clone, Debug)]
-pub struct Mesh<S = geom::scalar::Default> {
+pub struct Mesh<'a, S = geom::scalar::Default> {
     position: position::Properties<S>,
     orientation: orientation::Properties<S>,
     vertex_range: ops::Range<usize>,
     index_range: ops::Range<usize>,
     vertex_mode: draw::renderer::VertexMode,
     fill_color: Option<FillColor>,
-    texture_view: Option<wgpu::TextureView>,
+    texture_view: Option<wgpu::TextureView<'a>>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -36,9 +36,9 @@ struct FlattenIndices<I> {
     current: [usize; 3],
 }
 
-pub type DrawingMesh<'a, S> = Drawing<'a, Mesh<S>, S>;
+pub type DrawingMesh<'a, S> = Drawing<'a, Mesh<'a, S>, S>;
 
-impl Vertexless {
+impl<'a> Vertexless {
     /// Describe the mesh with a sequence of textured points.
     ///
     /// Each of the vertices must be represented as a tuple containing the point and tex
@@ -50,7 +50,7 @@ impl Vertexless {
         inner_mesh: &mut draw::Mesh<S>,
         texture_view: &dyn wgpu::ToTextureView,
         points: I,
-    ) -> Mesh<S>
+    ) -> Mesh<'a, S>
     where
         S: BaseFloat,
         I: IntoIterator<Item = (P, T)>,
@@ -125,7 +125,7 @@ impl Vertexless {
         vertices: I,
         vertex_mode: draw::renderer::VertexMode,
         texture_view: Option<wgpu::TextureView>,
-    ) -> Mesh<S>
+    ) -> Mesh<'a, S>
     where
         S: BaseFloat,
         I: Iterator<Item = Vertex<S>>,
@@ -152,7 +152,7 @@ impl Vertexless {
         inner_mesh: &mut draw::Mesh<S>,
         texture_view: &dyn wgpu::ToTextureView,
         tris: I,
-    ) -> Mesh<S>
+    ) -> Mesh<'a, S>
     where
         S: BaseFloat,
         I: IntoIterator<Item = geom::Tri<(P, T)>>,
@@ -220,7 +220,7 @@ impl Vertexless {
         texture_view: &dyn wgpu::ToTextureView,
         points: V,
         indices: I,
-    ) -> Mesh<S>
+    ) -> Mesh<'a, S>
     where
         S: BaseFloat,
         V: IntoIterator<Item = (P, T)>,
@@ -300,12 +300,12 @@ impl Vertexless {
 
     fn indexed_inner<S, V, I>(
         self,
-        inner_mesh: &mut draw::Mesh<S>,
+        inner_mesh: &'a mut draw::Mesh<S>,
         vertices: V,
         indices: I,
         vertex_mode: draw::renderer::VertexMode,
         texture_view: Option<wgpu::TextureView>,
-    ) -> Mesh<S>
+    ) -> Mesh<'a, S>
     where
         S: BaseFloat,
         V: IntoIterator<Item = Vertex<S>>,
@@ -321,7 +321,7 @@ impl Vertexless {
     }
 }
 
-impl<S> Mesh<S>
+impl<'a, S> Mesh<'a, S>
 where
     S: BaseFloat,
 {
@@ -503,12 +503,12 @@ where
     }
 }
 
-impl draw::renderer::RenderPrimitive for Mesh<f32> {
+impl<'a> draw::renderer::RenderPrimitive<'a> for Mesh<'a, f32> {
     fn render_primitive(
         self,
         ctxt: draw::renderer::RenderContext,
-        mesh: &mut draw::Mesh,
-    ) -> draw::renderer::PrimitiveRender {
+        mesh: &'a mut draw::Mesh,
+    ) -> draw::renderer::PrimitiveRender<'a> {
         let Mesh {
             orientation,
             position,
@@ -593,37 +593,37 @@ where
     }
 }
 
-impl<S> SetOrientation<S> for Mesh<S> {
+impl<'a, S> SetOrientation<S> for Mesh<'a, S> {
     fn properties(&mut self) -> &mut orientation::Properties<S> {
         SetOrientation::properties(&mut self.orientation)
     }
 }
 
-impl<S> SetPosition<S> for Mesh<S> {
+impl<'a, S> SetPosition<S> for Mesh<'a, S> {
     fn properties(&mut self) -> &mut position::Properties<S> {
         SetPosition::properties(&mut self.position)
     }
 }
 
-impl<S> SetColor<ColorScalar> for Mesh<S> {
+impl<'a, S> SetColor<ColorScalar> for Mesh<'a, S> {
     fn rgba_mut(&mut self) -> &mut Option<LinSrgba> {
         &mut self.fill_color.get_or_insert_with(Default::default).0
     }
 }
 
-impl<S> From<Vertexless> for Primitive<S> {
+impl<'a, S> From<Vertexless> for Primitive<'a, S> {
     fn from(prim: Vertexless) -> Self {
         Primitive::MeshVertexless(prim)
     }
 }
 
-impl<S> From<Mesh<S>> for Primitive<S> {
+impl<'a, S> From<Mesh<'a, S>> for Primitive<'a, S> {
     fn from(prim: Mesh<S>) -> Self {
         Primitive::Mesh(prim)
     }
 }
 
-impl<S> Into<Option<Vertexless>> for Primitive<S> {
+impl<'a, S> Into<Option<Vertexless>> for Primitive<'a, S> {
     fn into(self) -> Option<Vertexless> {
         match self {
             Primitive::MeshVertexless(prim) => Some(prim),
@@ -632,8 +632,8 @@ impl<S> Into<Option<Vertexless>> for Primitive<S> {
     }
 }
 
-impl<S> Into<Option<Mesh<S>>> for Primitive<S> {
-    fn into(self) -> Option<Mesh<S>> {
+impl<'a, S> Into<Option<Mesh<'a, S>>> for Primitive<'a, S> {
+    fn into(self) -> Option<Mesh<'a, S>> {
         match self {
             Primitive::Mesh(prim) => Some(prim),
             _ => None,

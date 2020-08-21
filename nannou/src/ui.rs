@@ -65,7 +65,7 @@ pub struct Ui {
 
 /// A type used for building a new `Ui`.
 pub struct Builder<'a> {
-    app: &'a App,
+    app: &'a App<'a>,
     window_id: Option<window::Id>,
     dimensions: Option<[Scalar; 2]>,
     theme: Option<Theme>,

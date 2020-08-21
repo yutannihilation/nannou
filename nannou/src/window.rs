@@ -29,7 +29,7 @@ pub const DEFAULT_DIMENSIONS: LogicalSize<geom::scalar::Default> = LogicalSize {
 
 /// A context for building a window.
 pub struct Builder<'app> {
-    app: &'app App,
+    app: &'app App<'app>,
     window: winit::window::WindowBuilder,
     title_was_set: bool,
     swap_chain_builder: SwapChainBuilder,
@@ -222,13 +222,13 @@ fn_any!(ClosedFn<M>, ClosedFnAny);
 /// The **Window** acts as a wrapper around the `winit::window::Window` and the `wgpu::Surface`
 /// types. It also manages the associated swap chain, providing a more nannou-friendly API.
 #[derive(Debug)]
-pub struct Window {
+pub struct Window<'a> {
     pub(crate) window: winit::window::Window,
     pub(crate) surface: wgpu::Surface,
     pub(crate) device_queue_pair: Arc<wgpu::DeviceQueuePair>,
     msaa_samples: u32,
     pub(crate) swap_chain: WindowSwapChain,
-    pub(crate) frame_data: Option<FrameData>,
+    pub(crate) frame_data: Option<FrameData<'a>>,
     pub(crate) frame_count: u64,
     pub(crate) user_functions: UserFunctions,
     pub(crate) tracked_state: TrackedState,
@@ -236,9 +236,9 @@ pub struct Window {
 
 // Data related to `Frame`s produced for this window's swapchain textures.
 #[derive(Debug)]
-pub(crate) struct FrameData {
+pub(crate) struct FrameData<'swap_chain> {
     // Data for rendering a `Frame`'s intermediary image to a swap chain image.
-    pub(crate) render: frame::RenderData,
+    pub(crate) render: frame::RenderData<'swap_chain>,
     // Data for capturing a `Frame`'s intermediary image before submission.
     pub(crate) capture: frame::CaptureData,
 }
@@ -992,7 +992,7 @@ impl<'app> Builder<'app> {
     }
 }
 
-impl Window {
+impl<'a> Window<'a> {
     // `winit::window::Window` methods.
     //
     // NOTE: On new versions of winit, we should check whether or not new `Window` methods have
@@ -1454,7 +1454,7 @@ impl Window {
 
 // Drop implementations.
 
-impl Drop for Window {
+impl<'a> Drop for Window<'a> {
     fn drop(&mut self) {
         if self.await_capture_frame_jobs().is_err() {
             // TODO: Replace eprintlns with proper logging.

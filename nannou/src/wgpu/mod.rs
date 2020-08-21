@@ -39,6 +39,7 @@ pub use self::render_pass::{
 };
 pub use self::render_pipeline_builder::RenderPipelineBuilder;
 pub use self::sampler_builder::SamplerBuilder;
+pub use self::sampler_builder::SamplerDescriptorWithoutLifetime;
 pub use self::texture::capturer::{
     AwaitWorkerTimeout as TextureCapturerAwaitWorkerTimeout, Capturer as TextureCapturer,
     Rgba8ReadMapping, Snapshot as TextureSnapshot,

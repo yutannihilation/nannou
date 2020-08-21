@@ -322,6 +322,10 @@ impl BufferImage {
     pub async fn read(&self) -> Result<ImageReadMapping, wgpu::BufferAsyncError> {
         let size = self.size;
         let color_type = self.color_type;
+        let buffer_slice = self.buffer.buffer.slice(..);
+        let buffer_future = buffer_slice.map_async(wgpu::MapMode::Read).await;
+        let data = buffer_slice.get_mapped_range();
+
         let mapping = self.buffer.read().await?;
         Ok(ImageReadMapping {
             color_type,
@@ -447,7 +451,7 @@ impl<'a> WithDeviceQueuePair for &'a wgpu::DeviceQueuePair {
     }
 }
 
-impl<'a> WithDeviceQueuePair for &'a crate::window::Window {
+impl<'a> WithDeviceQueuePair for &'a crate::window::Window<'a> {
     fn with_device_queue_pair<F, O>(self, f: F) -> O
     where
         F: FnOnce(&wgpu::Device, &wgpu::Queue) -> O,
@@ -457,7 +461,7 @@ impl<'a> WithDeviceQueuePair for &'a crate::window::Window {
     }
 }
 
-impl<'a> WithDeviceQueuePair for &'a crate::app::App {
+impl<'a> WithDeviceQueuePair for &'a crate::app::App<'a> {
     fn with_device_queue_pair<F, O>(self, f: F) -> O
     where
         F: FnOnce(&wgpu::Device, &wgpu::Queue) -> O,
@@ -466,7 +470,7 @@ impl<'a> WithDeviceQueuePair for &'a crate::app::App {
     }
 }
 
-impl<'a, 'b> WithDeviceQueuePair for &'a std::cell::Ref<'b, crate::window::Window> {
+impl<'a, 'b> WithDeviceQueuePair for &'a std::cell::Ref<'b, crate::window::Window<'b>> {
     fn with_device_queue_pair<F, O>(self, f: F) -> O
     where
         F: FnOnce(&wgpu::Device, &wgpu::Queue) -> O,

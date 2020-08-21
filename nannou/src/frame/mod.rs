@@ -21,14 +21,14 @@ pub use self::raw::RawFrame;
 /// intermediary image.
 pub struct Frame<'swap_chain> {
     raw_frame: RawFrame<'swap_chain>,
-    render_data: &'swap_chain RenderData,
+    render_data: &'swap_chain RenderData<'swap_chain>,
     capture_data: &'swap_chain CaptureData,
 }
 
 /// Data specific to the intermediary textures.
 #[derive(Debug)]
-pub struct RenderData {
-    intermediary_lin_srgba: IntermediaryLinSrgba,
+pub struct RenderData<'a> {
+    intermediary_lin_srgba: IntermediaryLinSrgba<'a>,
     msaa_samples: u32,
     size: [u32; 2],
     // For writing the intermediary linear sRGBA texture to the swap chain texture.
@@ -47,10 +47,10 @@ pub(crate) struct CaptureData {
 /// Intermediary textures used as a target before resolving multisampling and writing to the
 /// swapchain texture.
 #[derive(Debug)]
-pub(crate) struct IntermediaryLinSrgba {
-    msaa_texture: Option<(wgpu::Texture, wgpu::TextureView)>,
+pub(crate) struct IntermediaryLinSrgba<'a> {
+    msaa_texture: Option<(wgpu::Texture, wgpu::TextureView<'a>)>,
     texture: wgpu::Texture,
-    texture_view: wgpu::TextureView,
+    texture_view: wgpu::TextureView<'a>,
 }
 
 impl<'swap_chain> ops::Deref for Frame<'swap_chain> {
@@ -282,7 +282,7 @@ impl CaptureData {
     }
 }
 
-impl RenderData {
+impl<'a> RenderData<'a> {
     /// Initialise the render data.
     ///
     /// Creates an `wgpu::TextureView` with the given parameters.

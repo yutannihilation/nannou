@@ -1,7 +1,21 @@
 /// Simplifies the construction of a `Sampler` with a set of reasonable defaults.
 #[derive(Debug)]
 pub struct SamplerBuilder {
-    pub descriptor: wgpu::SamplerDescriptor,
+    pub descriptor: SamplerDescriptorWithoutLifetime,
+}
+
+pub struct SamplerDescriptorWithoutLifetime {
+    // pub label: Option<&str>,
+    pub address_mode_u: wgpu::AddressMode,
+    pub address_mode_v: wgpu::AddressMode,
+    pub address_mode_w: wgpu::AddressMode,
+    pub mag_filter: wgpu::FilterMode,
+    pub min_filter: wgpu::FilterMode,
+    pub mipmap_filter: wgpu::FilterMode,
+    pub lod_min_clamp: f32,
+    pub lod_max_clamp: f32,
+    pub compare: Option<wgpu::CompareFunction>,
+    pub anisotropy_clamp: Option<std::num::NonZeroU8>,
 }
 
 impl SamplerBuilder {
@@ -14,17 +28,20 @@ impl SamplerBuilder {
     pub const DEFAULT_LOD_MIN_CLAMP: f32 = -100.0;
     pub const DEFAULT_LOD_MAX_CLAMP: f32 = 100.0;
     pub const DEFAULT_COMPARE: wgpu::CompareFunction = wgpu::CompareFunction::Always;
-    pub const DEFAULT_DESCRIPTOR: wgpu::SamplerDescriptor = wgpu::SamplerDescriptor {
-        address_mode_u: Self::DEFAULT_ADDRESS_MODE_U,
-        address_mode_v: Self::DEFAULT_ADDRESS_MODE_V,
-        address_mode_w: Self::DEFAULT_ADDRESS_MODE_W,
-        mag_filter: Self::DEFAULT_MAG_FILTER,
-        min_filter: Self::DEFAULT_MIN_FILTER,
-        mipmap_filter: Self::DEFAULT_MIPMAP_FILTER,
-        lod_min_clamp: Self::DEFAULT_LOD_MIN_CLAMP,
-        lod_max_clamp: Self::DEFAULT_LOD_MAX_CLAMP,
-        compare: Self::DEFAULT_COMPARE,
-    };
+    pub const DEFAULT_ANISOTROPY_CLAMP: Option<std::num::NonZeroU8> = None;
+    pub const DEFAULT_DESCRIPTOR: SamplerDescriptorWithoutLifetime =
+        SamplerDescriptorWithoutLifetime {
+            address_mode_u: Self::DEFAULT_ADDRESS_MODE_U,
+            address_mode_v: Self::DEFAULT_ADDRESS_MODE_V,
+            address_mode_w: Self::DEFAULT_ADDRESS_MODE_W,
+            mag_filter: Self::DEFAULT_MAG_FILTER,
+            min_filter: Self::DEFAULT_MIN_FILTER,
+            mipmap_filter: Self::DEFAULT_MIPMAP_FILTER,
+            lod_min_clamp: Self::DEFAULT_LOD_MIN_CLAMP,
+            lod_max_clamp: Self::DEFAULT_LOD_MAX_CLAMP,
+            compare: Self::DEFAULT_COMPARE,
+            anisotropy_clamp: Self::DEFAULT_ANISOTROPY_CLAMP,
+        };
 
     /// Begin building a `Sampler`, starting with the `Default` parameters.
     pub fn new() -> Self {
@@ -101,16 +118,16 @@ impl SamplerBuilder {
 
     /// Calls `device.create_sampler(&self.descriptor)` internally.
     pub fn build(&self, device: &wgpu::Device) -> wgpu::Sampler {
-        device.create_sampler(&self.descriptor)
+        device.create_sampler(&self.to_descriptor(Some("Sample descriptor")))
     }
 
     /// Consume the builder and produce the inner `SamplerDescriptor`.
-    pub fn into_descriptor(self) -> wgpu::SamplerDescriptor {
-        self.into()
+    pub fn to_descriptor<'a>(self, label: Option<&'a str>) -> wgpu::SamplerDescriptor<'a> {
+        wgpu::SamplerDescriptor { label, ..self }
     }
 }
 
-impl Default for SamplerBuilder {
+impl<'a> Default for SamplerBuilder {
     fn default() -> Self {
         SamplerBuilder {
             descriptor: Self::DEFAULT_DESCRIPTOR,
@@ -118,13 +135,7 @@ impl Default for SamplerBuilder {
     }
 }
 
-impl Into<wgpu::SamplerDescriptor> for SamplerBuilder {
-    fn into(self) -> wgpu::SamplerDescriptor {
-        self.descriptor
-    }
-}
-
-impl From<wgpu::SamplerDescriptor> for SamplerBuilder {
+impl<'a> From<wgpu::SamplerDescriptor<'_>> for SamplerBuilder {
     fn from(descriptor: wgpu::SamplerDescriptor) -> Self {
         SamplerBuilder { descriptor }
     }

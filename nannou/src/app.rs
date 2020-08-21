@@ -98,17 +98,17 @@ fn default_model(_: &App) -> () {
 /// - The sharing of wgpu devices between windows.
 /// - A default **Draw** instance for ease of use.
 /// - A map of channels for submitting user input updates to active **Ui**s.
-pub struct App {
+pub struct App<'a> {
     config: RefCell<Config>,
     default_window_size: Option<DefaultWindowSize>,
     max_capture_frame_jobs: u32,
     capture_frame_timeout: Option<Duration>,
     pub(crate) event_loop_window_target: Option<EventLoopWindowTarget>,
     pub(crate) event_loop_proxy: Proxy,
-    pub(crate) windows: RefCell<HashMap<window::Id, Window>>,
+    pub(crate) windows: RefCell<HashMap<window::Id, Window<'a>>>,
     /// A map of active wgpu physial device adapters.
     adapters: wgpu::AdapterMap,
-    draw_state: DrawState,
+    draw_state: DrawState<'a>,
     pub(crate) ui: ui::Arrangement,
     /// The window that is currently in focus.
     pub(crate) focused_window: RefCell<Option<window::Id>>,
@@ -160,9 +160,9 @@ struct Config {
 
 // Draw state managed by the **App**.
 #[derive(Debug)]
-struct DrawState {
-    draw: RefCell<draw::Draw<DrawScalar>>,
-    renderers: RefCell<HashMap<window::Id, RefCell<draw::Renderer>>>,
+struct DrawState<'a> {
+    draw: RefCell<draw::Draw<'a, DrawScalar>>,
+    renderers: RefCell<HashMap<window::Id, RefCell<draw::Renderer<'a>>>>,
 }
 
 /// The app uses a set scalar type in order to provide a simplistic API to users.
@@ -578,7 +578,7 @@ impl Default for Config {
     }
 }
 
-impl App {
+impl<'a> App<'a> {
     pub const ASSETS_DIRECTORY_NAME: &'static str = "assets";
     pub const DEFAULT_EXIT_ON_ESCAPE: bool = true;
     pub const DEFAULT_FULLSCREEN_ON_SHORTCUT: bool = true;
@@ -876,7 +876,7 @@ impl Proxy {
     }
 }
 
-impl draw::Draw {
+impl<'a> draw::Draw<'a> {
     /// Render the **Draw**'s inner list of commands to the texture associated with the **Frame**.
     ///
     /// The **App** stores a unique render.
@@ -1365,7 +1365,10 @@ where
         // with that window so that the state doesn't leak.
         //
         // Returns the `Window` that was removed.
-        fn remove_related_window_state(app: &App, window_id: &window::Id) -> Option<Window> {
+        fn remove_related_window_state(
+            app: &App,
+            window_id: &window::Id,
+        ) -> Option<Window<'static>> {
             app.draw_state.renderers.borrow_mut().remove(window_id);
             app.windows.borrow_mut().remove(window_id)
         }

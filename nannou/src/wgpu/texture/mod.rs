@@ -35,9 +35,9 @@ pub struct Texture {
 /// be of the whole texture, but it might also be of some sub-section of the texture. When an API
 /// provides
 #[derive(Debug)]
-pub struct TextureView {
+pub struct TextureView<'a> {
     handle: Arc<TextureViewHandle>,
-    descriptor: wgpu::TextureViewDescriptor,
+    descriptor: wgpu::TextureViewDescriptor<'a>,
     texture_extent: wgpu::Extent3d,
     texture_id: TextureId,
 }
@@ -74,7 +74,7 @@ pub struct Builder {
 #[derive(Debug)]
 pub struct ViewBuilder<'a> {
     texture: &'a wgpu::Texture,
-    descriptor: wgpu::TextureViewDescriptor,
+    descriptor: wgpu::TextureViewDescriptor<'a>,
 }
 
 /// A wrapper around a `wgpu::Buffer` containing bytes of a known length.
@@ -367,7 +367,7 @@ impl Texture {
     }
 }
 
-impl TextureView {
+impl<'a> TextureView<'a> {
     pub fn descriptor(&self) -> &wgpu::TextureViewDescriptor {
         &self.descriptor
     }
@@ -613,7 +613,7 @@ impl<'a> ViewBuilder<'a> {
         self.base_array_layer(layer).array_layer_count(1)
     }
 
-    pub fn build(self) -> TextureView {
+    pub fn build(self) -> TextureView<'a> {
         TextureView {
             handle: Arc::new(self.texture.inner().create_view(&self.descriptor)),
             descriptor: self.descriptor,
@@ -623,7 +623,7 @@ impl<'a> ViewBuilder<'a> {
     }
 
     /// Consumes the texture view builder and returns the resulting `wgpu::TextureViewDescriptor`.
-    pub fn into_descriptor(self) -> wgpu::TextureViewDescriptor {
+    pub fn into_descriptor(self) -> wgpu::TextureViewDescriptor<'a> {
         self.into()
     }
 }
@@ -672,7 +672,7 @@ where
     }
 }
 
-impl ToTextureView for TextureView {
+impl<'a> ToTextureView for TextureView<'a> {
     fn to_texture_view(&self) -> TextureView {
         self.clone()
     }
@@ -684,7 +684,7 @@ impl ToTextureView for Texture {
     }
 }
 
-impl Clone for TextureView {
+impl<'a> Clone for TextureView<'a> {
     fn clone(&self) -> Self {
         TextureView {
             handle: self.handle.clone(),
@@ -710,7 +710,7 @@ impl Deref for Texture {
     }
 }
 
-impl Deref for TextureView {
+impl<'a> Deref for TextureView<'a> {
     type Target = TextureViewHandle;
     fn deref(&self) -> &Self::Target {
         &self.handle

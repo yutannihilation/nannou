@@ -122,7 +122,7 @@ impl SamplerBuilder {
     }
 
     /// Consume the builder and produce the inner `SamplerDescriptor`.
-    pub fn to_descriptor<'a>(self, label: Option<&'a str>) -> wgpu::SamplerDescriptor<'a> {
+    pub fn to_descriptor<'a>(self, label: Option<&'a str>) -> wgpu::SamplerDescriptor {
         wgpu::SamplerDescriptor { label, ..self }
     }
 }
@@ -135,7 +135,7 @@ impl<'a> Default for SamplerBuilder {
     }
 }
 
-impl<'a> From<wgpu::SamplerDescriptor<'_>> for SamplerBuilder {
+impl From<wgpu::SamplerDescriptor> for SamplerBuilder {
     fn from(descriptor: wgpu::SamplerDescriptor) -> Self {
         SamplerBuilder { descriptor }
     }

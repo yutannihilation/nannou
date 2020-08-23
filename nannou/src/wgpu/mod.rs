@@ -73,7 +73,7 @@ pub use wgpu::{
     SamplerDescriptor, ShaderLocation, ShaderModule, ShaderStage, StencilOperation,
     StencilStateFaceDescriptor, StoreOp, Surface, SwapChain, SwapChainDescriptor, SwapChainOutput,
     Texture as TextureHandle, TextureAspect, TextureComponentType, TextureCopyView,
-    TextureDescriptor, TextureDimension, TextureFormat, TextureUsage,
+    TextureDataLayout, TextureDescriptor, TextureDimension, TextureFormat, TextureUsage,
     TextureView as TextureViewHandle, TextureViewDescriptor, TextureViewDimension, TimeOut,
     VertexAttributeDescriptor, VertexBufferDescriptor, VertexFormat, VertexStateDescriptor,
     BIND_BUFFER_ALIGNMENT, MAX_BIND_GROUPS,

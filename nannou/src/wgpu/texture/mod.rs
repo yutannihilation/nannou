@@ -37,7 +37,7 @@ pub struct Texture {
 #[derive(Debug)]
 pub struct TextureView<'a> {
     handle: Arc<TextureViewHandle>,
-    descriptor: wgpu::TextureViewDescriptor<'a>,
+    descriptor: wgpu::TextureViewDescriptor,
     texture_extent: wgpu::Extent3d,
     texture_id: TextureId,
 }
@@ -74,7 +74,7 @@ pub struct Builder {
 #[derive(Debug)]
 pub struct ViewBuilder<'a> {
     texture: &'a wgpu::Texture,
-    descriptor: wgpu::TextureViewDescriptor<'a>,
+    descriptor: wgpu::TextureViewDescriptor,
 }
 
 /// A wrapper around a `wgpu::Buffer` containing bytes of a known length.
@@ -98,7 +98,6 @@ impl Texture {
         wgpu::TextureDescriptor {
             label: Some("nannou"),
             size: self.extent(),
-            array_layer_count: self.array_layer_count(),
             mip_level_count: self.mip_level_count(),
             sample_count: self.sample_count(),
             dimension: self.dimension(),
@@ -225,6 +224,7 @@ impl Texture {
         // TODO: Is this correct? Should we check the format?
         let aspect = wgpu::TextureAspect::All;
         wgpu::TextureViewDescriptor {
+            label: Some("Texture view"),
             format: self.format(),
             dimension,
             aspect,
@@ -240,7 +240,6 @@ impl Texture {
         wgpu::TextureCopyView {
             texture: &self.handle,
             mip_level: 0,
-            array_layer: 0,
             origin: wgpu::Origin3d::ZERO,
         }
     }
@@ -255,9 +254,11 @@ impl Texture {
         let [width, height] = self.size();
         wgpu::BufferCopyView {
             buffer,
-            offset: 0,
-            bytes_per_row: width * format_size_bytes,
-            rows_per_image: height,
+            layout: wgpu::TextureDataLayout {
+                offset: 0,
+                bytes_per_row: width * format_size_bytes,
+                rows_per_image: height,
+            },
         }
     }
 
@@ -373,6 +374,7 @@ impl<'a> TextureView<'a> {
 
     pub fn descriptor_cloned(&self) -> wgpu::TextureViewDescriptor {
         wgpu::TextureViewDescriptor {
+            label: Some("Texture view"),
             format: self.format(),
             dimension: self.dimension(),
             aspect: self.aspect(),
@@ -621,7 +623,7 @@ impl<'a> ViewBuilder<'a> {
     }
 
     /// Consumes the texture view builder and returns the resulting `wgpu::TextureViewDescriptor`.
-    pub fn into_descriptor(self) -> wgpu::TextureViewDescriptor<'a> {
+    pub fn into_descriptor(self) -> wgpu::TextureViewDescriptor {
         self.into()
     }
 }
@@ -854,6 +856,20 @@ pub fn format_to_component_type(format: wgpu::TextureFormat) -> wgpu::TextureCom
         | wgpu::TextureFormat::Rgb10a2Unorm
         | wgpu::TextureFormat::Depth32Float
         | wgpu::TextureFormat::Depth24Plus
-        | wgpu::TextureFormat::Depth24PlusStencil8 => wgpu::TextureComponentType::Float,
+        | wgpu::TextureFormat::Depth24PlusStencil8
+        | wgpu::TextureFormat::Bc1RgbaUnorm
+        | wgpu::TextureFormat::Bc1RgbaUnormSrgb
+        | wgpu::TextureFormat::Bc2RgbaUnorm
+        | wgpu::TextureFormat::Bc2RgbaUnormSrgb
+        | wgpu::TextureFormat::Bc3RgbaUnorm
+        | wgpu::TextureFormat::Bc3RgbaUnormSrgb
+        | wgpu::TextureFormat::Bc4RUnorm
+        | wgpu::TextureFormat::Bc4RSnorm
+        | wgpu::TextureFormat::Bc5RgUnorm
+        | wgpu::TextureFormat::Bc5RgSnorm
+        | wgpu::TextureFormat::Bc6hRgbUfloat
+        | wgpu::TextureFormat::Bc6hRgbSfloat
+        | wgpu::TextureFormat::Bc7RgbaUnorm
+        | wgpu::TextureFormat::Bc7RgbaUnormSrgb => wgpu::TextureComponentType::Float,
     }
 }

@@ -57,31 +57,32 @@ pub use self::texture::{
 };
 #[doc(inline)]
 pub use wgpu::{
-    include_spirv, vertex_attr_array, Adapter, AdapterInfo, AddressMode, Backend, BackendBit,
-    BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor,
-    BindGroupLayoutEntry, BindingResource, BindingType, BlendDescriptor, BlendFactor,
-    BlendOperation, Buffer, BufferAddress, BufferAsyncError, BufferCopyView, BufferDescriptor,
-    BufferSize, BufferUsage, Color, ColorStateDescriptor, ColorWrite, CommandBuffer,
-    CommandBufferDescriptor, CommandEncoder, CommandEncoderDescriptor, CompareFunction,
-    ComputePass, ComputePipeline, ComputePipelineDescriptor, CullMode, DepthStencilStateDescriptor,
-    Device, DeviceDescriptor, DeviceType, DynamicOffset, Extent3d, Features, FilterMode, FrontFace,
-    IndexFormat, InputStepMode, Limits, LoadOp, Maintain, MapMode, Operations, Origin3d,
-    PipelineLayout, PipelineLayoutDescriptor, PowerPreference, PresentMode, PrimitiveTopology,
-    ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor, RenderPass,
-    RenderPassColorAttachmentDescriptor, RenderPassDepthStencilAttachmentDescriptor,
+    read_spirv, vertex_attr_array, vertex_format_size, Adapter, AdapterInfo, AddressMode, Backend,
+    BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout, BindGroupLayoutDescriptor,
+    BindGroupLayoutEntry, Binding, BindingResource, BindingType, BlendDescriptor, BlendFactor,
+    BlendOperation, Buffer, BufferAddress, BufferAsyncErr, BufferCopyView, BufferDescriptor,
+    BufferReadMapping, BufferUsage, BufferWriteMapping, Color, ColorStateDescriptor, ColorWrite,
+    CommandBuffer, CommandBufferDescriptor, CommandEncoder, CommandEncoderDescriptor,
+    CompareFunction, ComputePass, ComputePipeline, ComputePipelineDescriptor, CreateBufferMapped,
+    CullMode, DepthStencilStateDescriptor, Device, DeviceDescriptor, DeviceType, DynamicOffset,
+    Extensions, Extent3d, FilterMode, FrontFace, IndexFormat, InputStepMode, Limits, LoadOp,
+    Maintain, Origin3d, PipelineLayout, PipelineLayoutDescriptor, PowerPreference, PresentMode,
+    PrimitiveTopology, ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor,
+    RenderPass, RenderPassColorAttachmentDescriptor, RenderPassDepthStencilAttachmentDescriptor,
     RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor, RequestAdapterOptions, Sampler,
     SamplerDescriptor, ShaderLocation, ShaderModule, ShaderStage, StencilOperation,
-    StencilStateFaceDescriptor, Surface, SwapChain, SwapChainDescriptor, SwapChainFrame,
+    StencilStateFaceDescriptor, StoreOp, Surface, SwapChain, SwapChainDescriptor, SwapChainOutput,
     Texture as TextureHandle, TextureAspect, TextureComponentType, TextureCopyView,
-    TextureDataLayout, TextureDescriptor, TextureDimension, TextureFormat, TextureUsage,
-    TextureView as TextureViewHandle, TextureViewDescriptor, TextureViewDimension,
+    TextureDescriptor, TextureDimension, TextureFormat, TextureUsage,
+    TextureView as TextureViewHandle, TextureViewDescriptor, TextureViewDimension, TimeOut,
     VertexAttributeDescriptor, VertexBufferDescriptor, VertexFormat, VertexStateDescriptor,
-    BIND_BUFFER_ALIGNMENT,
+    BIND_BUFFER_ALIGNMENT, MAX_BIND_GROUPS,
 };
 
-// TODO: use include_spirv
 pub fn shader_from_spirv_bytes(device: &wgpu::Device, bytes: &[u8]) -> wgpu::ShaderModule {
-    device.create_shader_module(wgpu::util::make_spirv(bytes))
+    let cursor = std::io::Cursor::new(bytes);
+    let vs_spirv = read_spirv(cursor).expect("failed to read hard-coded SPIRV");
+    device.create_shader_module(&vs_spirv)
 }
 
 /// The default power preference used for requesting the WGPU adapter.
@@ -91,7 +92,7 @@ pub const DEFAULT_POWER_PREFERENCE: PowerPreference = PowerPreference::HighPerfo
 pub const DEFAULT_BACKENDS: BackendBit = BackendBit::PRIMARY;
 
 /// The default set of `Extensions` used within the `default_device_descriptor()` function.
-pub const DEFAULT_FEATURES: Features = Features {
+pub const DEFAULT_EXTENSIONS: Extensions = Extensions {
     anisotropic_filtering: true,
 };
 
@@ -111,13 +112,9 @@ pub fn clear_texture(
 
 /// The default device descriptor used to instantiate a logical device when creating windows.
 pub fn default_device_descriptor() -> DeviceDescriptor {
-    let features = DEFAULT_FEATURES;
+    let extensions = DEFAULT_EXTENSIONS;
     let limits = Limits::default();
-    DeviceDescriptor {
-        features,
-        limits,
-        shader_validation: true,
-    }
+    DeviceDescriptor { extensions, limits }
 }
 
 /// Adds a simple render pass command to the given encoder that resolves the given multisampled
@@ -147,12 +144,23 @@ pub fn create_pipeline_layout(
     device: &wgpu::Device,
     bind_group_layouts: &[&wgpu::BindGroupLayout],
 ) -> wgpu::PipelineLayout {
-    let descriptor = wgpu::PipelineLayoutDescriptor {
-        bind_group_layouts,
-        push_constant_ranges: &[],
-        label: None,
-    };
+    let descriptor = wgpu::PipelineLayoutDescriptor { bind_group_layouts };
     device.create_pipeline_layout(&descriptor)
+}
+
+/// TODO: Remove this once `derive(Clone)` is added to wgpu SamplerDescriptor.
+pub fn sampler_descriptor_clone(sampler: &wgpu::SamplerDescriptor) -> wgpu::SamplerDescriptor {
+    wgpu::SamplerDescriptor {
+        address_mode_u: sampler.address_mode_u,
+        address_mode_v: sampler.address_mode_v,
+        address_mode_w: sampler.address_mode_w,
+        mag_filter: sampler.mag_filter,
+        min_filter: sampler.min_filter,
+        mipmap_filter: sampler.mipmap_filter,
+        lod_min_clamp: sampler.lod_min_clamp,
+        lod_max_clamp: sampler.lod_max_clamp,
+        compare: sampler.compare,
+    }
 }
 
 /// The functions within this module use unsafe in order to retrieve their input as a slice of

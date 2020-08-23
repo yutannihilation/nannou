@@ -98,6 +98,7 @@ impl Texture {
         wgpu::TextureDescriptor {
             label: Some("nannou"),
             size: self.extent(),
+            array_layer_count: self.array_layer_count(),
             mip_level_count: self.mip_level_count(),
             sample_count: self.sample_count(),
             dimension: self.dimension(),
@@ -231,7 +232,6 @@ impl Texture {
             level_count: self.mip_level_count(),
             base_array_layer: 0,
             array_layer_count: self.array_layer_count(),
-            label: None,
         }
     }
 
@@ -240,6 +240,7 @@ impl Texture {
         wgpu::TextureCopyView {
             texture: &self.handle,
             mip_level: 0,
+            array_layer: 0,
             origin: wgpu::Origin3d::ZERO,
         }
     }
@@ -254,11 +255,9 @@ impl Texture {
         let [width, height] = self.size();
         wgpu::BufferCopyView {
             buffer,
-            layout: wgpu::TextureDataLayout {
-                offset: 0,
-                bytes_per_row: width * format_size_bytes,
-                rows_per_image: height,
-            },
+            offset: 0,
+            bytes_per_row: width * format_size_bytes,
+            rows_per_image: height,
         }
     }
 
@@ -381,7 +380,6 @@ impl<'a> TextureView<'a> {
             level_count: self.level_count(),
             base_array_layer: self.base_array_layer(),
             array_layer_count: self.array_layer_count(),
-            label: None,
         }
     }
 
@@ -634,8 +632,8 @@ impl BufferBytes {
     ///
     /// Note: The given callback will not be called until the memory is mapped and the device is
     /// polled. You should not rely on the callback being called immediately.
-    pub async fn read(&self) -> Result<(), wgpu::BufferAsyncError> {
-        self.buffer.slice(..).map_async(wgpu::MapMode::Read).await
+    pub async fn read(&self) -> Result<wgpu::BufferReadMapping, wgpu::BufferAsyncErr> {
+        self.buffer.map_read(0, self.len_bytes).await
     }
 
     /// The length of the `wgpu::Buffer` in bytes.
@@ -743,8 +741,8 @@ impl Into<wgpu::TextureDescriptor<'static>> for Builder {
     }
 }
 
-impl<'a> Into<wgpu::TextureViewDescriptor<'a>> for ViewBuilder<'a> {
-    fn into(self) -> wgpu::TextureViewDescriptor<'a> {
+impl<'a> Into<wgpu::TextureViewDescriptor> for ViewBuilder<'a> {
+    fn into(self) -> wgpu::TextureViewDescriptor {
         self.descriptor
     }
 }
@@ -856,20 +854,6 @@ pub fn format_to_component_type(format: wgpu::TextureFormat) -> wgpu::TextureCom
         | wgpu::TextureFormat::Rgb10a2Unorm
         | wgpu::TextureFormat::Depth32Float
         | wgpu::TextureFormat::Depth24Plus
-        | wgpu::TextureFormat::Depth24PlusStencil8
-        | wgpu::TextureFormat::Bc1RgbaUnorm
-        | wgpu::TextureFormat::Bc1RgbaUnormSrgb
-        | wgpu::TextureFormat::Bc2RgbaUnorm
-        | wgpu::TextureFormat::Bc2RgbaUnormSrgb
-        | wgpu::TextureFormat::Bc3RgbaUnorm
-        | wgpu::TextureFormat::Bc3RgbaUnormSrgb
-        | wgpu::TextureFormat::Bc4RUnorm
-        | wgpu::TextureFormat::Bc4RSnorm
-        | wgpu::TextureFormat::Bc5RgUnorm
-        | wgpu::TextureFormat::Bc5RgSnorm
-        | wgpu::TextureFormat::Bc6hRgbUfloat
-        | wgpu::TextureFormat::Bc6hRgbSfloat
-        | wgpu::TextureFormat::Bc7RgbaUnorm
-        | wgpu::TextureFormat::Bc7RgbaUnormSrgb => wgpu::TextureComponentType::Float,
+        | wgpu::TextureFormat::Depth24PlusStencil8 => wgpu::TextureComponentType::Float,
     }
 }

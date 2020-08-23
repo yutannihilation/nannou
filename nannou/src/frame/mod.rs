@@ -228,19 +228,20 @@ impl<'swap_chain> Frame<'swap_chain> {
     /// greater than `1`, a render pass will be automatically added after the `view` completes and
     /// before the texture is drawn to the swapchain.
     pub fn color_attachment_descriptor(&self) -> wgpu::RenderPassColorAttachmentDescriptor {
-        let ops = wgpu::Operations {
-            load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
-            store: true,
-        };
+        let load_op = wgpu::LoadOp::Load;
+        let store_op = wgpu::StoreOp::Store;
         let attachment = match self.render_data.intermediary_lin_srgba.msaa_texture {
             None => &self.render_data.intermediary_lin_srgba.texture_view,
             Some((_, ref msaa_texture_view)) => msaa_texture_view,
         };
         let resolve_target = None;
+        let clear_color = wgpu::Color::TRANSPARENT;
         wgpu::RenderPassColorAttachmentDescriptor {
             attachment,
             resolve_target,
-            ops,
+            load_op,
+            store_op,
+            clear_color,
         }
     }
 

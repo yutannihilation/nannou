@@ -260,7 +260,7 @@ impl Snapshot {
     ///
     /// Specifically, this asynchronously maps the buffer of bytes from GPU to host memory and
     /// returns the result as an `ImageBuffer` with non-linear, RGBA 8 pixels.
-    pub async fn read_async(self) -> Result<Rgba8AsyncMappedImageBuffer, wgpu::BufferAsyncError> {
+    pub async fn read_async(self) -> Result<Rgba8AsyncMappedImageBuffer, wgpu::BufferAsyncErr> {
         let [width, height] = self.buffer.size();
         let mapping = self.buffer.read().await?;
         let _snapshot = self;
@@ -288,7 +288,7 @@ impl Snapshot {
     /// instead and running the resulting future on a custom runtime or threadpool.
     pub fn read<F>(self, callback: F) -> Result<(), AwaitWorkerTimeout<impl Future<Output = ()>>>
     where
-        F: 'static + Send + FnOnce(Result<Rgba8AsyncMappedImageBuffer, wgpu::BufferAsyncError>),
+        F: 'static + Send + FnOnce(Result<Rgba8AsyncMappedImageBuffer, wgpu::BufferAsyncErr>),
     {
         let thread_pool = self.thread_pool();
         let read_future = async {

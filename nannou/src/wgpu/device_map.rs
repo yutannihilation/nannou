@@ -108,8 +108,7 @@ impl AdapterMap {
         if let Some(adapter) = map.get(&key) {
             return Some(adapter.clone());
         }
-        let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
-        if let Some(adapter) = instance.request_adapter(&options).await {
+        if let Some(adapter) = wgpu::Adapter::request(&options, backends).await {
             let device_map = Default::default();
             let adapter = Arc::new(ActiveAdapter {
                 adapter,
@@ -126,8 +125,7 @@ impl AdapterMap {
         options: wgpu::RequestAdapterOptions<'b>,
         backends: wgpu::BackendBit,
     ) -> Option<Arc<ActiveAdapter>> {
-        let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
-        let adapter = instance.request_adapter(&options).await?;
+        let adapter = wgpu::Adapter::request(&options, backends).await?;
         let device_map = Default::default();
         let adapter = Arc::new(ActiveAdapter {
             adapter,
@@ -212,7 +210,7 @@ impl ActiveAdapter {
                 return device;
             }
         }
-        let Ok((device, queue)) = self.adapter.request_device(&key.descriptor, None).await;
+        let (device, queue) = self.adapter.request_device(&key.descriptor).await;
         let device = Arc::new(DeviceQueuePair { device, queue });
         map.insert(key, Arc::downgrade(&device));
         device
@@ -227,7 +225,7 @@ impl ActiveAdapter {
         &self,
         descriptor: wgpu::DeviceDescriptor,
     ) -> Arc<DeviceQueuePair> {
-        let Ok((device, queue)) = self.adapter.request_device(&descriptor, None).await;
+        let (device, queue) = self.adapter.request_device(&descriptor).await;
         let device = Arc::new(DeviceQueuePair { device, queue });
         let key = DeviceMapKey { descriptor };
         let mut map = self

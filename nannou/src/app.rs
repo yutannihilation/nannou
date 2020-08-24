@@ -826,7 +826,7 @@ impl<'a> App<'a> {
     /// **Note:** You can also create your own **Draw** instances via `Draw::new()`! This method
     /// makes it a tiny bit easier as the **App** stores the **Draw** instance for you and
     /// automatically resets the state on each call to `app.draw()`.
-    pub fn draw(&self) -> draw::Draw {
+    pub fn draw(&self) -> draw::Draw<'a> {
         let draw = self.draw_state.draw.borrow_mut();
         draw.reset();
         draw.clone()
@@ -1067,9 +1067,9 @@ fn run_loop<M, E>(
 
                 if let Some(model) = model.as_ref() {
                     let swap_chain_output = swap_chain
-                        .get_next_texture()
+                        .get_current_frame()
                         .expect("failed to acquire next swapchain texture");
-                    let swap_chain_texture = &swap_chain_output.view;
+                    let swap_chain_texture = &swap_chain_output.output.view;
 
                     // Borrow the window now that we don't need it mutably until setting the render
                     // data back.

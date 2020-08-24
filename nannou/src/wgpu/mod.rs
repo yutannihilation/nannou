@@ -39,7 +39,6 @@ pub use self::render_pass::{
 };
 pub use self::render_pipeline_builder::RenderPipelineBuilder;
 pub use self::sampler_builder::SamplerBuilder;
-pub use self::sampler_builder::SamplerDescriptorWithoutLifetime;
 pub use self::texture::capturer::{
     AwaitWorkerTimeout as TextureCapturerAwaitWorkerTimeout, Capturer as TextureCapturer,
     Rgba8ReadMapping, Snapshot as TextureSnapshot,
@@ -57,7 +56,7 @@ pub use self::texture::{
 };
 #[doc(inline)]
 pub use wgpu::{
-    include_spirv, vertex_attr_array, Adapter, AdapterInfo, AddressMode, Backend, BackendBit,
+    include_spirv, util, vertex_attr_array, Adapter, AdapterInfo, AddressMode, Backend, BackendBit,
     BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor,
     BindGroupLayoutEntry, BindingResource, BindingType, BlendDescriptor, BlendFactor,
     BlendOperation, Buffer, BufferAddress, BufferAsyncError, BufferCopyView, BufferDescriptor,

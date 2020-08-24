@@ -24,7 +24,7 @@ impl<'a, S> Texture<'a, S>
 where
     S: BaseFloat,
 {
-    pub(crate) fn new(view: &dyn wgpu::ToTextureView) -> Self {
+    pub(crate) fn new(view: &'a dyn wgpu::ToTextureView) -> Self {
         let texture_view = view.to_texture_view();
         let [w, h] = texture_view.size();
         let w = S::from(w).unwrap();
@@ -84,7 +84,7 @@ where
 impl<'a> draw::renderer::RenderPrimitive<'a> for Texture<'a, f32> {
     fn render_primitive(
         self,
-        mut ctxt: draw::renderer::RenderContext,
+        mut ctxt: draw::renderer::RenderContext<'a>,
         mesh: &mut draw::Mesh,
     ) -> draw::renderer::PrimitiveRender<'a> {
         let Texture {

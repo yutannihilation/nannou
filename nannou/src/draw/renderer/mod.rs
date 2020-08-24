@@ -12,6 +12,8 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
 
+use crate::wgpu::util::DeviceExt;
+
 /// Draw API primitives that may be rendered via the **Renderer** type.
 pub trait RenderPrimitive<'a> {
     /// Render self into the given mesh.
@@ -417,7 +419,11 @@ impl<'a> Renderer<'a> {
         let uniforms = create_uniforms(output_attachment_size, output_scale_factor);
         let uniforms_bytes = uniforms_as_bytes(&uniforms);
         let usage = wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST;
-        let uniform_buffer = device.create_buffer_with_data(uniforms_bytes, usage);
+        let uniform_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: uniforms_bytes,
+            usage,
+        });
 
         // Bind group for uniforms.
         let uniform_bind_group_layout = create_uniform_bind_group_layout(device);
@@ -1004,9 +1010,12 @@ fn create_uniforms([img_w, img_h]: [u32; 2], scale_factor: f32) -> Uniforms {
     Uniforms { proj }
 }
 
-fn create_uniform_bind_group_layout(device: &wgpu::Device) -> wgpu::BindGroupLayout {
+fn create_uniform_bind_group_layout(
+    device: &wgpu::Device,
+    min_binding_size: wgpu::BufferSize,
+) -> wgpu::BindGroupLayout {
     wgpu::BindGroupLayoutBuilder::new()
-        .uniform_buffer(wgpu::ShaderStage::VERTEX, false)
+        .uniform_buffer(wgpu::ShaderStage::VERTEX, false, min_binding_size)
         .build(device)
 }
 

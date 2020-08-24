@@ -404,7 +404,9 @@ impl<'a> IntoPipelineLayoutDescriptor<'a> for wgpu::PipelineLayoutDescriptor<'a>
 impl<'a> IntoPipelineLayoutDescriptor<'a> for &'a [&'a wgpu::BindGroupLayout] {
     fn into_pipeline_layout_descriptor(self) -> wgpu::PipelineLayoutDescriptor<'a> {
         wgpu::PipelineLayoutDescriptor {
+            label: Some("nannou_pipeline_layout_descriptor"),
             bind_group_layouts: self,
+            push_constant_ranges: &[],
         }
     }
 }

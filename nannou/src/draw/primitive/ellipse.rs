@@ -57,7 +57,7 @@ where
 impl<'a> draw::renderer::RenderPrimitive<'a> for Ellipse<f32> {
     fn render_primitive(
         self,
-        ctxt: draw::renderer::RenderContext,
+        ctxt: draw::renderer::RenderContext<'a>,
         mesh: &mut draw::Mesh,
     ) -> draw::renderer::PrimitiveRender<'a> {
         let Ellipse {

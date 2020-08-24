@@ -690,7 +690,7 @@ where
         path_event_src: PathEventSource,
         options: Options,
         vertex_mode: draw::renderer::VertexMode,
-        texture_view: Option<wgpu::TextureView>,
+        texture_view: Option<wgpu::TextureView<'a>>,
     ) -> Self {
         Path {
             color,

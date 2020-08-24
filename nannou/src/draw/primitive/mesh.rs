@@ -304,7 +304,7 @@ impl<'a> Vertexless {
         vertices: V,
         indices: I,
         vertex_mode: draw::renderer::VertexMode,
-        texture_view: Option<wgpu::TextureView>,
+        texture_view: Option<wgpu::TextureView<'a>>,
     ) -> Mesh<'a, S>
     where
         S: BaseFloat,
@@ -330,7 +330,7 @@ where
         vertex_range: ops::Range<usize>,
         index_range: ops::Range<usize>,
         vertex_mode: draw::renderer::VertexMode,
-        texture_view: Option<wgpu::TextureView>,
+        texture_view: Option<wgpu::TextureView<'a>>,
     ) -> Self {
         let orientation = Default::default();
         let position = Default::default();

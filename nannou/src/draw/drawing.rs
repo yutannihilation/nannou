@@ -53,7 +53,7 @@ pub struct DrawingContext<'a, S> {
 }
 
 /// Construct a new **Drawing** instance.
-pub fn new<'a, T, S>(draw: &'a Draw<S>, index: usize) -> Drawing<'a, T, S>
+pub fn new<'a, T, S>(draw: &'a Draw<'a, S>, index: usize) -> Drawing<'a, T, S>
 where
     S: BaseFloat,
 {
@@ -125,7 +125,7 @@ where
     // The functionn is only applied if the node has not yet been **Drawn**.
     fn map_primitive<F, T2>(mut self, map: F) -> Drawing<'a, T2, S>
     where
-        F: FnOnce(Primitive<S>) -> Primitive<S>,
+        F: FnOnce(Primitive<'a, S>) -> Primitive<'a, S>,
         T2: Into<Primitive<'a, S>>,
     {
         if let Ok(mut state) = self.draw.state.try_borrow_mut() {
@@ -149,7 +149,7 @@ where
     // vertices.
     fn map_primitive_with_context<F, T2>(mut self, map: F) -> Drawing<'a, T2, S>
     where
-        F: FnOnce(Primitive<S>, DrawingContext<S>) -> Primitive<'a, S>,
+        F: FnOnce(Primitive<'a, S>, DrawingContext<'a, S>) -> Primitive<'a, S>,
         T2: Into<Primitive<'a, S>>,
     {
         if let Ok(mut state) = self.draw.state.try_borrow_mut() {

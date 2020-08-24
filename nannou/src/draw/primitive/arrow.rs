@@ -173,7 +173,7 @@ impl<'a, S> Into<Option<Arrow<S>>> for Primitive<'a, S> {
 impl<'a> draw::renderer::RenderPrimitive<'a> for Arrow<f32> {
     fn render_primitive(
         self,
-        mut ctxt: draw::renderer::RenderContext,
+        mut ctxt: draw::renderer::RenderContext<'a>,
         mesh: &mut draw::Mesh,
     ) -> draw::renderer::PrimitiveRender<'a> {
         let Arrow {

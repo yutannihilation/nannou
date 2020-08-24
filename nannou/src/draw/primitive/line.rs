@@ -133,7 +133,7 @@ impl<'a, S> Into<Option<Line<S>>> for Primitive<'a, S> {
 impl<'a> draw::renderer::RenderPrimitive<'a> for Line<f32> {
     fn render_primitive(
         self,
-        mut ctxt: draw::renderer::RenderContext,
+        mut ctxt: draw::renderer::RenderContext<'a>,
         mesh: &mut draw::Mesh,
     ) -> draw::renderer::PrimitiveRender<'a> {
         let Line { path, start, end } = self;

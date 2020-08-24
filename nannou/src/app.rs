@@ -880,7 +880,11 @@ impl<'a> draw::Draw<'a> {
     /// Render the **Draw**'s inner list of commands to the texture associated with the **Frame**.
     ///
     /// The **App** stores a unique render.
-    pub fn to_frame(&self, app: &App, frame: &Frame) -> Result<(), draw::renderer::DrawError> {
+    pub fn to_frame(
+        &'a self,
+        app: &'a App<'a>,
+        frame: &Frame,
+    ) -> Result<(), draw::renderer::DrawError> {
         let window_id = frame.window_id();
         let window = app
             .window(window_id)
@@ -985,7 +989,7 @@ impl EventLoopWindowTarget {
 // If you would like to contribute but are unsure about any of the following, feel free to open an
 // issue and ask!
 fn run_loop<M, E>(
-    mut app: App,
+    mut app: App<'static>,
     model: M,
     event_fn: Option<EventFn<M, E>>,
     update_fn: Option<UpdateFn<M>>,
@@ -1335,7 +1339,7 @@ fn should_toggle_fullscreen(
 // 3. Emits event via `event_fn`.
 // 4. Returns whether or not we should break from the loop.
 fn process_and_emit_winit_event<'a, M, E>(
-    app: &mut App,
+    app: &mut App<'static>,
     model: &mut M,
     event_fn: Option<EventFn<M, E>>,
     winit_event: &winit::event::Event<'a, ()>,
@@ -1366,7 +1370,7 @@ where
         //
         // Returns the `Window` that was removed.
         fn remove_related_window_state(
-            app: &App,
+            app: &App<'static>,
             window_id: &window::Id,
         ) -> Option<Window<'static>> {
             app.draw_state.renderers.borrow_mut().remove(window_id);

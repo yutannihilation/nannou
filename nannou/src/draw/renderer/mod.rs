@@ -19,7 +19,7 @@ pub trait RenderPrimitive<'a> {
     /// Render self into the given mesh.
     fn render_primitive(
         self,
-        ctxt: &RenderContext<'a>,
+        ctxt: RenderContext<'a>,
         mesh: &mut draw::Mesh,
     ) -> PrimitiveRender<'a>;
 }
@@ -221,7 +221,7 @@ impl<'a> PrimitiveRender<'a> {
         Self::vertex_mode(VertexMode::Color)
     }
 
-    pub fn texture(texture_view: wgpu::TextureView) -> Self {
+    pub fn texture(texture_view: wgpu::TextureView<'a>) -> Self {
         PrimitiveRender {
             vertex_mode: VertexMode::Texture,
             texture_view: Some(texture_view),
@@ -770,8 +770,8 @@ impl<'a> Renderer<'a> {
         draw: &draw::Draw,
         scale_factor: f32,
         output_attachment_size: [u32; 2],
-        output_attachment: &wgpu::TextureView,
-        resolve_target: Option<&wgpu::TextureView>,
+        output_attachment: &wgpu::TextureView<'a>,
+        resolve_target: Option<&wgpu::TextureView<'a>>,
     ) {
         self.clear();
         self.fill(device, draw, scale_factor, output_attachment_size);

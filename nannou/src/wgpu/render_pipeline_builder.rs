@@ -479,6 +479,7 @@ fn build(
     };
 
     let pipeline_desc = wgpu::RenderPipelineDescriptor {
+        label: Some("nannou_render_pipeline_descriptor"),
         layout,
         vertex_stage,
         fragment_stage,

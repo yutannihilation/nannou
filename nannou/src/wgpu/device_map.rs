@@ -305,8 +305,7 @@ impl Eq for DeviceMapKey {}
 
 // NOTE: This should be updated as fields are added to the `wgpu::DeviceDescriptor` type.
 fn eq_device_descriptor(a: &wgpu::DeviceDescriptor, b: &wgpu::DeviceDescriptor) -> bool {
-    a.extensions.anisotropic_filtering == b.extensions.anisotropic_filtering
-        && a.limits.max_bind_groups == b.limits.max_bind_groups
+    a.features == b.features && a.limits.max_bind_groups == b.limits.max_bind_groups
 }
 
 // NOTE: This should be updated as fields are added to the `wgpu::DeviceDescriptor` type.

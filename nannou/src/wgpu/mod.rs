@@ -156,7 +156,7 @@ pub fn create_pipeline_layout(
 
 /// The functions within this module use unsafe in order to retrieve their input as a slice of
 /// bytes. This is necessary in order to upload data to the GPU via the wgpu
-/// `create_buffer_with_data` buffer constructor. This method is unsafe as the type `T` may contain
+/// `create_buffer_init` buffer constructor. This method is unsafe as the type `T` may contain
 /// padding which is considered to be uninitialised memory in Rust and may potentially lead to
 /// undefined behaviour.
 ///

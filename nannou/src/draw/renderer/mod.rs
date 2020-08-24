@@ -844,11 +844,31 @@ impl<'a> Renderer<'a> {
         let tex_coords_bytes = tex_coords_as_bytes(mesh.tex_coords());
         let modes_bytes = vertex_modes_as_bytes(vertex_mode_buffer);
         let indices_bytes = indices_as_bytes(mesh.indices());
-        let point_buffer = device.create_buffer_with_data(points_bytes, vertex_usage);
-        let color_buffer = device.create_buffer_with_data(colors_bytes, vertex_usage);
-        let tex_coords_buffer = device.create_buffer_with_data(tex_coords_bytes, vertex_usage);
-        let mode_buffer = device.create_buffer_with_data(modes_bytes, vertex_usage);
-        let index_buffer = device.create_buffer_with_data(indices_bytes, wgpu::BufferUsage::INDEX);
+        let point_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: points_bytes,
+            usage: vertex_usage,
+        });
+        let color_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: colors_bytes,
+            usage: vertex_usage,
+        });
+        let tex_coords_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: tex_coords_bytes,
+            usage: vertex_usage,
+        });
+        let mode_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: modes_bytes,
+            usage: vertex_usage,
+        });
+        let index_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: indices_bytes,
+            usage: wgpu::BufferUsage::INDEX,
+        });
 
         // If the scale factor or window size has changed, update the uniforms for vertex scaling.
         if *old_scale_factor != scale_factor || output_attachment_size != depth_size {
@@ -858,7 +878,11 @@ impl<'a> Renderer<'a> {
             let uniforms_size = std::mem::size_of::<Uniforms>() as wgpu::BufferAddress;
             let uniforms_bytes = uniforms_as_bytes(&uniforms);
             let usage = wgpu::BufferUsage::COPY_SRC;
-            let new_uniform_buffer = device.create_buffer_with_data(uniforms_bytes, usage);
+            let new_uniform_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+                label: Some("nannou_buffer_init_descriptor"),
+                contents: uniforms_bytes,
+                usage: usage,
+            });
             // Copy new uniform buffer state.
             encoder.copy_buffer_to_buffer(&new_uniform_buffer, 0, uniform_buffer, 0, uniforms_size);
         }

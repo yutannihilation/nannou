@@ -2,6 +2,8 @@ use crate::wgpu::{self, TextureHandle, TextureViewHandle};
 use std::ops::Deref;
 use std::sync::Arc;
 
+use crate::wgpu::util::DeviceExt;
+
 pub mod capturer;
 pub mod image;
 pub mod reshaper;
@@ -276,7 +278,11 @@ impl Texture {
         assert_eq!(data.len(), texture_size_bytes);
 
         // Upload and copy the data.
-        let buffer = device.create_buffer_with_data(data, wgpu::BufferUsage::COPY_SRC);
+        let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: data,
+            usage: wgpu::BufferUsage::COPY_SRC,
+        });
         let buffer_copy_view = self.default_buffer_copy_view(&buffer);
         let texture_copy_view = self.default_copy_view();
         let extent = self.extent();

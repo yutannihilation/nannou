@@ -1,4 +1,5 @@
 use crate::wgpu;
+use crate::wgpu::util::DeviceExt;
 
 /// Reshapes a texture from its original size, sample_count and format to the destination size,
 /// sample_count and format.
@@ -76,7 +77,11 @@ impl Reshaper {
                 };
                 let uniforms_bytes = uniforms_as_bytes(&uniforms);
                 let usage = wgpu::BufferUsage::UNIFORM;
-                let buffer = device.create_buffer_with_data(&uniforms_bytes, usage);
+                let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+                    label: Some("nannou_buffer_init_descriptor"),
+                    contents: &uniforms_bytes,
+                    usage: usage,
+                });
                 Some(buffer)
             }
         };
@@ -93,7 +98,11 @@ impl Reshaper {
         // Create the vertex buffer.
         let vertices_bytes = vertices_as_bytes(&VERTICES[..]);
         let vertex_usage = wgpu::BufferUsage::VERTEX;
-        let vertex_buffer = device.create_buffer_with_data(vertices_bytes, vertex_usage);
+        let vertex_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: vertices_bytes,
+            usage: vertex_usage,
+        });
 
         Reshaper {
             _vs_mod: vs_mod,

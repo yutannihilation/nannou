@@ -4,6 +4,8 @@
 use crate::wgpu;
 use std::path::Path;
 
+use crate::wgpu::util::DeviceExt;
+
 /// The set of pixel types from the image crate that can be loaded directly into a texture.
 ///
 /// The `Rgba8` and `Bgra8` color types are assumed to be non-linear sRGB.
@@ -691,7 +693,11 @@ where
     // has padding. Instead, should make some `Subpixel` trait that we can control and is only
     // guaranteed to be implemented for safe types.
     let subpixel_bytes = unsafe { wgpu::bytes::from_slice(subpixel_data) };
-    let buffer = device.create_buffer_with_data(subpixel_bytes, wgpu::BufferUsage::COPY_SRC);
+    let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        label: Some("nannou_buffer_init_descriptor"),
+        contents: subpixel_bytes,
+        usage: wgpu::BufferUsage::COPY_SRC,
+    });
 
     // Submit command for copying pixel data to the texture.
     let buffer_copy_view = texture.default_buffer_copy_view(&buffer);
@@ -745,7 +751,11 @@ where
         // that has padding. Instead, should make some `Subpixel` trait that we can control and is
         // only guaranteed to be implemented for safe types.
         let subpixel_bytes = unsafe { wgpu::bytes::from_slice(subpixel_data) };
-        let buffer = device.create_buffer_with_data(subpixel_bytes, wgpu::BufferUsage::COPY_SRC);
+        let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            label: Some("nannou_buffer_init_descriptor"),
+            contents: subpixel_bytes,
+            usage: wgpu::BufferUsage::COPY_SRC,
+        });
 
         // Submit command for copying pixel data to the texture.
         let buffer_copy_view = texture.default_buffer_copy_view(&buffer);

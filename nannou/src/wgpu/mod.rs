@@ -88,10 +88,8 @@ pub const DEFAULT_POWER_PREFERENCE: PowerPreference = PowerPreference::HighPerfo
 /// Nannou's default WGPU backend preferences.
 pub const DEFAULT_BACKENDS: BackendBit = BackendBit::PRIMARY;
 
-/// The default set of `Extensions` used within the `default_device_descriptor()` function.
-pub const DEFAULT_FEATURES: Features = Features {
-    anisotropic_filtering: true,
-};
+/// The default set of `Features` used within the `default_device_descriptor()` function.
+pub const DEFAULT_FEATURES: Features = Features::empty();
 
 /// Adds a simple render pass command to the given encoder that simply clears the given texture
 /// with the given colour.

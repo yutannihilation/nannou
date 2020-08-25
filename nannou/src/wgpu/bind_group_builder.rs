@@ -48,7 +48,7 @@ impl LayoutBuilder {
         self,
         visibility: wgpu::ShaderStage,
         dynamic: bool,
-        min_binding_size: wgpu::BufferSize,
+        min_binding_size: Option(wgpu::BufferSize),
         readonly: bool,
     ) -> Self {
         let ty = wgpu::BindingType::StorageBuffer {
@@ -140,7 +140,6 @@ impl LayoutBuilder {
             visibility,
             texture.format(),
             texture.view_dimension(),
-            texture.component_type(),
             readonly,
         )
     }
@@ -190,7 +189,7 @@ impl<'a> Builder<'a> {
         buffer: &'a wgpu::Buffer,
         range: std::ops::Range<wgpu::BufferAddress>,
     ) -> Self {
-        let resource = wgpu::BindingResource::Buffer(buffer);
+        let resource = wgpu::BindingResource::Buffer(buffer.slice(..));
         self.binding(resource)
     }
 

@@ -313,6 +313,6 @@ fn hash_device_descriptor<H>(desc: &wgpu::DeviceDescriptor, state: &mut H)
 where
     H: Hasher,
 {
-    desc.extensions.anisotropic_filtering.hash(state);
+    desc.features.hash(state);
     desc.limits.max_bind_groups.hash(state);
 }

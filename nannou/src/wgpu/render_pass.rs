@@ -20,7 +20,8 @@ pub struct DepthStencilAttachmentDescriptorBuilder<'a> {
 }
 
 impl<'a> ColorAttachmentDescriptorBuilder<'a> {
-    pub const DEFAULT_LOAD_OP: wgpu::LoadOp<f32> = wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT);
+    pub const DEFAULT_LOAD_OP: wgpu::LoadOp<wgpu::Color> =
+        wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT);
     pub const DEFAULT_STORE_OP: bool = true;
 
     /// Begin building a new render pass color attachment descriptor.

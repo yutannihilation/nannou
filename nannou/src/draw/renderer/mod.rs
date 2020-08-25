@@ -180,7 +180,11 @@ impl<'a> Default for PrimitiveRender<'a> {
 }
 
 impl<'a> RenderPrimitive<'a> for draw::Primitive<'a> {
-    fn render_primitive(self, ctxt: RenderContext, mesh: &mut draw::Mesh) -> PrimitiveRender<'a> {
+    fn render_primitive(
+        self,
+        ctxt: RenderContext<'a>,
+        mesh: &mut draw::Mesh,
+    ) -> PrimitiveRender<'a> {
         match self {
             draw::Primitive::Arrow(prim) => prim.render_primitive(ctxt, mesh),
             draw::Primitive::Mesh(prim) => prim.render_primitive(ctxt, mesh),

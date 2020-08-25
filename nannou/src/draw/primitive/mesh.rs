@@ -124,7 +124,7 @@ impl<'a> Vertexless {
         inner_mesh: &mut draw::Mesh<S>,
         vertices: I,
         vertex_mode: draw::renderer::VertexMode,
-        texture_view: Option<wgpu::TextureView>,
+        texture_view: Option<wgpu::TextureView<'a>>,
     ) -> Mesh<'a, S>
     where
         S: BaseFloat,
@@ -216,8 +216,8 @@ impl<'a> Vertexless {
     /// `Into<Point2>`.
     pub fn indexed_textured<S, V, I, P, T>(
         self,
-        inner_mesh: &mut draw::Mesh<S>,
-        texture_view: &dyn wgpu::ToTextureView,
+        inner_mesh: &'a mut draw::Mesh<S>,
+        texture_view: &'a dyn wgpu::ToTextureView,
         points: V,
         indices: I,
     ) -> Mesh<'a, S>
@@ -489,7 +489,7 @@ where
     /// `Into<Point2>`.
     pub fn indexed_textured<V, I, P, T>(
         self,
-        view: &dyn wgpu::ToTextureView,
+        view: &'a dyn wgpu::ToTextureView,
         points: V,
         indices: I,
     ) -> DrawingMesh<'a, S>
@@ -506,8 +506,8 @@ where
 impl<'a> draw::renderer::RenderPrimitive<'a> for Mesh<'a, f32> {
     fn render_primitive(
         self,
-        ctxt: draw::renderer::RenderContext,
-        mesh: &'a mut draw::Mesh,
+        ctxt: draw::renderer::RenderContext<'a>,
+        mesh: &mut draw::Mesh,
     ) -> draw::renderer::PrimitiveRender<'a> {
         let Mesh {
             orientation,

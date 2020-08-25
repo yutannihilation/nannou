@@ -198,7 +198,7 @@ where
     /// **Panics** if the primitive does not contain type **T**.
     pub(crate) fn map_ty_with_context<F, T2>(self, map: F) -> Drawing<'a, T2, S>
     where
-        F: FnOnce(T, DrawingContext<S>) -> T2,
+        F: FnOnce(T, DrawingContext<'a, S>) -> T2,
         T2: Into<Primitive<'a, S>>,
         Primitive<'a, S>: Into<Option<T>>,
     {

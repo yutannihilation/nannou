@@ -561,7 +561,7 @@ pub fn load_texture_from_image(
     };
     let mut encoder = device.create_command_encoder(&cmd_encoder_desc);
     let texture = encode_load_texture_from_image(device, &mut encoder, usage, image);
-    queue.submit(&[encoder.finish()]);
+    queue.submit(Some(encoder.finish()));
     texture
 }
 
@@ -586,7 +586,7 @@ where
     };
     let mut encoder = device.create_command_encoder(&cmd_encoder_desc);
     let texture = encode_load_texture_from_image_buffer(device, &mut encoder, usage, buffer);
-    queue.submit(&[encoder.finish()]);
+    queue.submit(Some(encoder.finish()));
     texture
 }
 
@@ -616,7 +616,7 @@ where
     let mut encoder = device.create_command_encoder(&cmd_encoder_desc);
     let texture =
         encode_load_texture_array_from_image_buffers(device, &mut encoder, usage, buffers);
-    queue.submit(&[encoder.finish()]);
+    queue.submit(Some(encoder.finish()));
     texture
 }
 

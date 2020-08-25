@@ -48,7 +48,7 @@ impl<'a> Vertexless {
     pub fn points_textured<S, I, P, T>(
         self,
         inner_mesh: &mut draw::Mesh<S>,
-        texture_view: &dyn wgpu::ToTextureView,
+        texture_view: &'a dyn wgpu::ToTextureView,
         points: I,
     ) -> Mesh<'a, S>
     where
@@ -150,7 +150,7 @@ impl<'a> Vertexless {
     pub fn tris_textured<S, I, P, T>(
         self,
         inner_mesh: &mut draw::Mesh<S>,
-        texture_view: &dyn wgpu::ToTextureView,
+        texture_view: &'a dyn wgpu::ToTextureView,
         tris: I,
     ) -> Mesh<'a, S>
     where
@@ -388,7 +388,7 @@ where
     /// `Into<Point2>`.
     pub fn points_textured<I, P, T>(
         self,
-        view: &dyn wgpu::ToTextureView,
+        view: &'a dyn wgpu::ToTextureView,
         points: I,
     ) -> DrawingMesh<'a, S>
     where
@@ -437,7 +437,7 @@ where
     /// `Into<Point2>`.
     pub fn tris_textured<I, P, T>(
         self,
-        view: &dyn wgpu::ToTextureView,
+        view: &'a dyn wgpu::ToTextureView,
         tris: I,
     ) -> DrawingMesh<'a, S>
     where
@@ -618,7 +618,7 @@ impl<'a, S> From<Vertexless> for Primitive<'a, S> {
 }
 
 impl<'a, S> From<Mesh<'a, S>> for Primitive<'a, S> {
-    fn from(prim: Mesh<S>) -> Self {
+    fn from(prim: Mesh<'a, S>) -> Self {
         Primitive::Mesh(prim)
     }
 }

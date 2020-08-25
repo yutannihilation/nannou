@@ -600,7 +600,7 @@ where
 
     /// Finish any drawings-in-progress and produce an iterator draining the inner draw commands
     /// and yielding them by value.
-    pub fn drain_commands(&'a self) -> impl Iterator<Item = DrawCommand<S>> {
+    pub fn drain_commands(&'a self) -> impl Iterator<Item = DrawCommand<'a, S>> {
         self.finish_remaining_drawings();
         let cmds = {
             let mut state = self.state.borrow_mut();

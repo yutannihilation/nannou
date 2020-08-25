@@ -255,8 +255,8 @@ where
     /// Submit path events as a polyline of textured points.
     pub fn points_textured<I, P, TC>(
         self,
-        ctxt: DrawingContext<S>,
-        texture_view: &dyn wgpu::ToTextureView,
+        ctxt: DrawingContext<'a, S>,
+        texture_view: &'a dyn wgpu::ToTextureView,
         points: I,
     ) -> Path<'a, S>
     where
@@ -271,8 +271,8 @@ where
     /// Submit path events as a polyline of textured points.
     pub fn points_textured_closed<I, P, TC>(
         self,
-        ctxt: DrawingContext<S>,
-        texture_view: &dyn wgpu::ToTextureView,
+        ctxt: DrawingContext<'a, S>,
+        texture_view: &'a dyn wgpu::ToTextureView,
         points: I,
     ) -> Path<'a, S>
     where
@@ -302,7 +302,7 @@ where
     // Consumes an iterator of points and converts them to an iterator yielding events.
     fn points_colored_inner<I, P, C>(
         self,
-        ctxt: DrawingContext<S>,
+        ctxt: DrawingContext<'a, S>,
         close: bool,
         points: I,
     ) -> Path<S>
@@ -340,8 +340,8 @@ where
     // Consumes an iterator of textured points and buffers them for rendering.
     fn points_textured_inner<I, P, TC>(
         self,
-        ctxt: DrawingContext<S>,
-        texture_view: wgpu::TextureView,
+        ctxt: DrawingContext<'a, S>,
+        texture_view: wgpu::TextureView<'a>,
         close: bool,
         points: I,
     ) -> Path<'a, S>
@@ -817,7 +817,7 @@ where
     /// Submit path events as a polyline of textured points.
     pub fn points_textured<I, P, TC>(
         self,
-        view: &dyn wgpu::ToTextureView,
+        view: &'a dyn wgpu::ToTextureView,
         points: I,
     ) -> DrawingPath<'a, S>
     where
@@ -834,7 +834,7 @@ where
     /// The path with automatically close from the end point to the start point.
     pub fn points_textured_closed<I, P, TC>(
         self,
-        view: &dyn wgpu::ToTextureView,
+        view: &'a dyn wgpu::ToTextureView,
         points: I,
     ) -> DrawingPath<'a, S>
     where
@@ -945,7 +945,7 @@ impl<'a, S> From<PathFill<S>> for Primitive<'a, S> {
 }
 
 impl<'a, S> From<Path<'a, S>> for Primitive<'a, S> {
-    fn from(prim: Path<S>) -> Self {
+    fn from(prim: Path<'a, S>) -> Self {
         Primitive::Path(prim)
     }
 }

@@ -320,7 +320,7 @@ impl<'a> Builder {
         output_scale_factor: f32,
         sample_count: u32,
         output_color_format: wgpu::TextureFormat,
-    ) -> Renderer {
+    ) -> Renderer<'a> {
         Renderer::new(
             device,
             output_attachment_size,
@@ -423,7 +423,7 @@ impl<'a> Renderer<'a> {
         let uniforms = create_uniforms(output_attachment_size, output_scale_factor);
         let uniforms_bytes = uniforms_as_bytes(&uniforms);
         let usage = wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST;
-        let uniform_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: uniforms_bytes,
             usage,
@@ -848,27 +848,27 @@ impl<'a> Renderer<'a> {
         let tex_coords_bytes = tex_coords_as_bytes(mesh.tex_coords());
         let modes_bytes = vertex_modes_as_bytes(vertex_mode_buffer);
         let indices_bytes = indices_as_bytes(mesh.indices());
-        let point_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let point_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: points_bytes,
             usage: vertex_usage,
         });
-        let color_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let color_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: colors_bytes,
             usage: vertex_usage,
         });
-        let tex_coords_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let tex_coords_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: tex_coords_bytes,
             usage: vertex_usage,
         });
-        let mode_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let mode_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: modes_bytes,
             usage: vertex_usage,
         });
-        let index_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: indices_bytes,
             usage: wgpu::BufferUsage::INDEX,
@@ -882,7 +882,7 @@ impl<'a> Renderer<'a> {
             let uniforms_size = std::mem::size_of::<Uniforms>() as wgpu::BufferAddress;
             let uniforms_bytes = uniforms_as_bytes(&uniforms);
             let usage = wgpu::BufferUsage::COPY_SRC;
-            let new_uniform_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+            let new_uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("nannou_buffer_init_descriptor"),
                 contents: uniforms_bytes,
                 usage: usage,
@@ -945,7 +945,7 @@ impl<'a> Renderer<'a> {
         device: &wgpu::Device,
         encoder: &mut wgpu::CommandEncoder,
         draw: &draw::Draw,
-        texture: &wgpu::Texture,
+        texture: &'a wgpu::Texture,
     ) {
         let size = texture.size();
         let view = texture.view().build();
@@ -970,7 +970,7 @@ impl<'a> Renderer<'a> {
         device: &wgpu::Device,
         draw: &draw::Draw,
         scale_factor: f32,
-        frame: &Frame,
+        frame: &'a Frame,
     ) {
         let size = frame.texture().size();
         let attachment = frame.texture_view();

@@ -154,7 +154,7 @@ impl<'a, S> SetDimensions<S> for Texture<'a, S> {
 // Primitive conversions.
 
 impl<'a, S> From<Texture<'a, S>> for Primitive<'a, S> {
-    fn from(prim: Texture<S>) -> Self {
+    fn from(prim: Texture<'a, S>) -> Self {
         Primitive::Texture(prim)
     }
 }

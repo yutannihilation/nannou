@@ -693,7 +693,7 @@ where
     // has padding. Instead, should make some `Subpixel` trait that we can control and is only
     // guaranteed to be implemented for safe types.
     let subpixel_bytes = unsafe { wgpu::bytes::from_slice(subpixel_data) };
-    let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+    let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("nannou_buffer_init_descriptor"),
         contents: subpixel_bytes,
         usage: wgpu::BufferUsage::COPY_SRC,
@@ -751,7 +751,7 @@ where
         // that has padding. Instead, should make some `Subpixel` trait that we can control and is
         // only guaranteed to be implemented for safe types.
         let subpixel_bytes = unsafe { wgpu::bytes::from_slice(subpixel_data) };
-        let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: subpixel_bytes,
             usage: wgpu::BufferUsage::COPY_SRC,

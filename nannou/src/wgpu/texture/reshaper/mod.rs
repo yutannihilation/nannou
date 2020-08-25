@@ -77,7 +77,7 @@ impl Reshaper {
                 };
                 let uniforms_bytes = uniforms_as_bytes(&uniforms);
                 let usage = wgpu::BufferUsage::UNIFORM;
-                let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+                let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                     label: Some("nannou_buffer_init_descriptor"),
                     contents: &uniforms_bytes,
                     usage: usage,
@@ -98,7 +98,7 @@ impl Reshaper {
         // Create the vertex buffer.
         let vertices_bytes = vertices_as_bytes(&VERTICES[..]);
         let vertex_usage = wgpu::BufferUsage::VERTEX;
-        let vertex_buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: vertices_bytes,
             usage: vertex_usage,
@@ -172,7 +172,7 @@ fn bind_group_layout(
         )
         .sampler(wgpu::ShaderStage::FRAGMENT);
     if !unrolled_sample_count(src_sample_count) {
-        builder = builder.uniform_buffer(wgpu::ShaderStage::FRAGMENT, false);
+        builder = builder.uniform_buffer(wgpu::ShaderStage::FRAGMENT, false, None);
     }
     builder.build(device)
 }

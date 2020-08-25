@@ -817,7 +817,7 @@ impl<'a> App<'a> {
     ///
     /// Each **Ui** is associated with one specific window. By default, this is the window returned
     /// by `App::window_id` (the currently focused window).
-    pub fn new_ui(&self) -> ui::Builder<'a> {
+    pub fn new_ui(&'a self) -> ui::Builder<'a> {
         ui::Builder::new(self)
     }
 

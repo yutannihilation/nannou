@@ -344,7 +344,7 @@ impl<'app> Builder<'app> {
     pub const DEFAULT_BACKENDS: wgpu::BackendBit = wgpu::DEFAULT_BACKENDS;
 
     /// Begin building a new window.
-    pub fn new(app: &'app App) -> Self {
+    pub fn new(app: &'app App<'app>) -> Self {
         Builder {
             app,
             window: winit::window::WindowBuilder::new(),

@@ -388,7 +388,7 @@ impl<'a> RenderPipelineBuilder<'a> {
     ///
     /// - A rasterization state field was specified but no fragment shader was given.
     /// - A color state field was specified but no fragment shader was given.
-    pub fn build(self, device: &wgpu::Device) -> wgpu::RenderPipeline {
+    pub fn build(self, device: &'a wgpu::Device) -> wgpu::RenderPipeline {
         match self.layout {
             Layout::Descriptor(ref desc) => {
                 let layout = device.create_pipeline_layout(desc);
@@ -415,7 +415,7 @@ impl<'a> IntoPipelineLayoutDescriptor<'a> for &'a [&'a wgpu::BindGroupLayout] {
     }
 }
 
-fn build(
+fn build<'a>(
     builder: RenderPipelineBuilder,
     layout: &'a wgpu::PipelineLayout,
     device: &'a wgpu::Device,
@@ -484,7 +484,7 @@ fn build(
 
     let pipeline_desc = wgpu::RenderPipelineDescriptor {
         label: Some("nannou_render_pipeline_descriptor"),
-        layout,
+        layout: Some(layout),
         vertex_stage,
         fragment_stage,
         rasterization_state,

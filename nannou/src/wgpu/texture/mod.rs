@@ -130,7 +130,7 @@ impl Texture {
         self.descriptor.size
     }
 
-    pub fn mip_level_count(&self) -> Option<u32> {
+    pub fn mip_level_count(&self) -> u32 {
         self.descriptor.mip_level_count
     }
 
@@ -222,13 +222,13 @@ impl Texture {
         // TODO: Is this correct? Should we check the format?
         let aspect = wgpu::TextureAspect::All;
         wgpu::TextureViewDescriptor {
-            format: self.format(),
+            format: Some(self.format()),
             dimension: Some(dimension),
             aspect,
             base_mip_level: 0,
             level_count: self.mip_level_count(),
             base_array_layer: 0,
-            array_layer_count: self.array_layer_count(),
+            array_layer_count: None,
             label: None,
         }
     }
@@ -778,7 +778,6 @@ pub fn data_size_bytes(desc: &wgpu::TextureDescriptor) -> usize {
     desc.size.width as usize
         * desc.size.height as usize
         * desc.size.depth as usize
-        * desc.array_layer_count as usize
         * format_size_bytes(desc.format) as usize
 }
 
@@ -809,7 +808,6 @@ pub fn extent_3d_eq(a: &wgpu::Extent3d, b: &wgpu::Extent3d) -> bool {
 /// Returns `true` if the given texture descriptors are equal.
 pub fn descriptor_eq(a: &wgpu::TextureDescriptor, b: &wgpu::TextureDescriptor) -> bool {
     extent_3d_eq(&a.size, &b.size)
-        && a.array_layer_count == b.array_layer_count
         && a.mip_level_count == b.mip_level_count
         && a.sample_count == b.sample_count
         && a.dimension == b.dimension

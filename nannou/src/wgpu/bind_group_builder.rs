@@ -48,7 +48,7 @@ impl LayoutBuilder {
         self,
         visibility: wgpu::ShaderStage,
         dynamic: bool,
-        min_binding_size: Option(wgpu::BufferSize),
+        min_binding_size: Option<wgpu::BufferSize>,
         readonly: bool,
     ) -> Self {
         let ty = wgpu::BindingType::StorageBuffer {

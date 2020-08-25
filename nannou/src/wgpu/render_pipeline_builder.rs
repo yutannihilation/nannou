@@ -417,8 +417,8 @@ impl<'a> IntoPipelineLayoutDescriptor<'a> for &'a [&'a wgpu::BindGroupLayout] {
 
 fn build(
     builder: RenderPipelineBuilder,
-    layout: &wgpu::PipelineLayout,
-    device: &wgpu::Device,
+    layout: &'a wgpu::PipelineLayout,
+    device: &'a wgpu::Device,
 ) -> wgpu::RenderPipeline {
     let RenderPipelineBuilder {
         layout: _layout,

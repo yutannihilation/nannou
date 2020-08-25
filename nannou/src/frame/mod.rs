@@ -290,7 +290,7 @@ impl<'a> RenderData<'a> {
     /// If `msaa_samples` is greater than 1 a `multisampled` texture will also be created. Otherwise the
     /// a regular non-multisampled image will be created.
     pub(crate) fn new(
-        device: &wgpu::Device,
+        device: &'a wgpu::Device,
         swap_chain_dims: [u32; 2],
         swap_chain_format: wgpu::TextureFormat,
         msaa_samples: u32,
@@ -345,11 +345,11 @@ fn create_lin_srgba_texture(device: &wgpu::Device, swap_chain_dims: [u32; 2]) ->
         .build(device)
 }
 
-fn create_intermediary_lin_srgba(
-    device: &wgpu::Device,
+fn create_intermediary_lin_srgba<'a>(
+    device: &'a wgpu::Device,
     swap_chain_dims: [u32; 2],
     msaa_samples: u32,
-) -> IntermediaryLinSrgba {
+) -> IntermediaryLinSrgba<'a> {
     let msaa_texture = match msaa_samples {
         0 | 1 => None,
         _ => {

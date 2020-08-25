@@ -817,7 +817,7 @@ impl<'a> App<'a> {
     ///
     /// Each **Ui** is associated with one specific window. By default, this is the window returned
     /// by `App::window_id` (the currently focused window).
-    pub fn new_ui(&self) -> ui::Builder {
+    pub fn new_ui(&self) -> ui::Builder<'a> {
         ui::Builder::new(self)
     }
 
@@ -883,7 +883,7 @@ impl<'a> draw::Draw<'a> {
     pub fn to_frame(
         &'a self,
         app: &'a App<'a>,
-        frame: &Frame,
+        frame: &'a Frame,
     ) -> Result<(), draw::renderer::DrawError> {
         let window_id = frame.window_id();
         let window = app

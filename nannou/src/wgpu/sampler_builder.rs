@@ -5,6 +5,7 @@ pub struct SamplerBuilder<'a> {
 }
 
 impl<'a> SamplerBuilder<'a> {
+    pub const DEFAULT_LABEL: Option<&'a str> = Some("nannou_sample_descriptor");
     pub const DEFAULT_ADDRESS_MODE_U: wgpu::AddressMode = wgpu::AddressMode::ClampToEdge;
     pub const DEFAULT_ADDRESS_MODE_V: wgpu::AddressMode = wgpu::AddressMode::ClampToEdge;
     pub const DEFAULT_ADDRESS_MODE_W: wgpu::AddressMode = wgpu::AddressMode::ClampToEdge;
@@ -13,8 +14,8 @@ impl<'a> SamplerBuilder<'a> {
     pub const DEFAULT_MIPMAP_FILTER: wgpu::FilterMode = wgpu::FilterMode::Nearest;
     pub const DEFAULT_LOD_MIN_CLAMP: f32 = -100.0;
     pub const DEFAULT_LOD_MAX_CLAMP: f32 = 100.0;
-    pub const DEFAULT_COMPARE: wgpu::CompareFunction = wgpu::CompareFunction::Always;
-    pub const DEFAULT_LABEL: Option<&'a str> = Some("nannou_sample_descriptor");
+    pub const DEFAULT_COMPARE: Option<wgpu::CompareFunction> = Some(wgpu::CompareFunction::Always);
+    pub const DEFAULT_ANISOTROPY_CLAMP: Option<std::num::NonZeroU8> = None;
     pub const DEFAULT_DESCRIPTOR: wgpu::SamplerDescriptor<'a> = wgpu::SamplerDescriptor {
         label: Self::DEFAULT_LABEL,
         address_mode_u: Self::DEFAULT_ADDRESS_MODE_U,
@@ -26,6 +27,7 @@ impl<'a> SamplerBuilder<'a> {
         lod_min_clamp: Self::DEFAULT_LOD_MIN_CLAMP,
         lod_max_clamp: Self::DEFAULT_LOD_MAX_CLAMP,
         compare: Self::DEFAULT_COMPARE,
+        anisotropy_clamp: Self::DEFAULT_ANISOTROPY_CLAMP,
     };
 
     /// Begin building a `Sampler`, starting with the `Default` parameters.
@@ -96,7 +98,7 @@ impl<'a> SamplerBuilder<'a> {
         self
     }
 
-    pub fn compare(mut self, f: wgpu::CompareFunction) -> Self {
+    pub fn compare(mut self, f: Option<wgpu::CompareFunction>) -> Self {
         self.descriptor.compare = f;
         self
     }
@@ -127,7 +129,7 @@ impl<'a> Into<wgpu::SamplerDescriptor<'a>> for SamplerBuilder<'a> {
 }
 
 impl<'a> From<wgpu::SamplerDescriptor<'a>> for SamplerBuilder<'a> {
-    fn from(descriptor: wgpu::SamplerDescriptor) -> Self {
+    fn from(descriptor: wgpu::SamplerDescriptor<'a>) -> Self {
         SamplerBuilder { descriptor }
     }
 }

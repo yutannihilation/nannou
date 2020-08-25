@@ -503,9 +503,9 @@ impl<'a> Renderer<'a> {
     ///
     /// Note that the given **Draw** instance will be *drained* of its commands.
     pub fn fill(
-        &mut self,
-        device: &wgpu::Device,
-        draw: &draw::Draw,
+        &'a mut self,
+        device: &'a wgpu::Device,
+        draw: &'a draw::Draw<'a>,
         scale_factor: f32,
         output_attachment_size: [u32; 2],
     ) {
@@ -772,10 +772,10 @@ impl<'a> Renderer<'a> {
     /// If the `output_attachment` is multisampled and should be resolved to another texture,
     /// include the `resolve_target`.
     pub fn encode_render_pass(
-        &mut self,
-        device: &wgpu::Device,
+        &'a mut self,
+        device: &'a wgpu::Device,
         encoder: &mut wgpu::CommandEncoder,
-        draw: &draw::Draw,
+        draw: &'a draw::Draw<'a>,
         scale_factor: f32,
         output_attachment_size: [u32; 2],
         output_attachment: &wgpu::TextureView<'a>,
@@ -942,10 +942,10 @@ impl<'a> Renderer<'a> {
     /// Encode the necessary commands to render the contents of the given **Draw**ing to the given
     /// **Texture**.
     pub fn render_to_texture(
-        &mut self,
-        device: &wgpu::Device,
+        &'a mut self,
+        device: &'a wgpu::Device,
         encoder: &mut wgpu::CommandEncoder,
-        draw: &draw::Draw,
+        draw: &'a draw::Draw<'a>,
         texture: &'a wgpu::Texture,
     ) {
         let size = texture.size();
@@ -967,9 +967,9 @@ impl<'a> Renderer<'a> {
     /// Encode the necessary commands to render the contents of the given **Draw**ing to the given
     /// **Frame**.
     pub fn render_to_frame(
-        &mut self,
-        device: &wgpu::Device,
-        draw: &draw::Draw,
+        &'a mut self,
+        device: &'a wgpu::Device,
+        draw: &'a draw::Draw<'a>,
         scale_factor: f32,
         frame: &'a Frame,
     ) {

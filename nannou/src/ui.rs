@@ -107,7 +107,7 @@ impl Arrangement {
 
 impl<'a> Builder<'a> {
     /// Begin building a new `Ui`.
-    pub(super) fn new(app: &App<'a>) -> Self {
+    pub(super) fn new(app: &'a App<'a>) -> Self {
         Builder {
             app,
             window_id: None,

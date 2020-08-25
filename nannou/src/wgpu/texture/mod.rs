@@ -130,11 +130,7 @@ impl Texture {
         self.descriptor.size
     }
 
-    pub fn array_layer_count(&self) -> u32 {
-        self.descriptor.array_layer_count
-    }
-
-    pub fn mip_level_count(&self) -> u32 {
+    pub fn mip_level_count(&self) -> Option<u32> {
         self.descriptor.mip_level_count
     }
 
@@ -227,7 +223,7 @@ impl Texture {
         let aspect = wgpu::TextureAspect::All;
         wgpu::TextureViewDescriptor {
             format: self.format(),
-            dimension,
+            dimension: Some(dimension),
             aspect,
             base_mip_level: 0,
             level_count: self.mip_level_count(),
@@ -278,7 +274,7 @@ impl Texture {
         assert_eq!(data.len(), texture_size_bytes);
 
         // Upload and copy the data.
-        let buffer = device.create_buffer_init(wgpu::util::BufferInitDescriptor {
+        let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("nannou_buffer_init_descriptor"),
             contents: data,
             usage: wgpu::BufferUsage::COPY_SRC,
@@ -324,6 +320,7 @@ impl Texture {
                 label: Some("nannou_texture_to_buffer"),
                 size: data_size_bytes,
                 usage: wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::MAP_READ,
+                mapped_at_creation: false,
             };
             let buffer = device.create_buffer(&buffer_descriptor);
 
@@ -381,14 +378,14 @@ impl<'a> TextureView<'a> {
 
     pub fn descriptor_cloned(&self) -> wgpu::TextureViewDescriptor {
         wgpu::TextureViewDescriptor {
-            format: self.format(),
-            dimension: self.dimension(),
+            label: None,
+            format: Some(self.format()),
+            dimension: Some(self.dimension()),
             aspect: self.aspect(),
             base_mip_level: self.base_mip_level(),
-            level_count: self.level_count(),
-            base_array_layer: self.base_array_layer(),
-            array_layer_count: self.array_layer_count(),
-            label: None,
+            level_count: Some(self.level_count()),
+            base_array_layer: Some(self.base_array_layer()),
+            array_layer_count: Some(self.array_layer_count()),
         }
     }
 
@@ -470,7 +467,7 @@ impl Builder {
     pub const DEFAULT_SAMPLE_COUNT: u32 = 1;
     pub const DEFAULT_DIMENSION: wgpu::TextureDimension = wgpu::TextureDimension::D2;
     pub const DEFAULT_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba8Unorm;
-    pub const DEFAULT_USAGE: wgpu::TextureUsage = wgpu::TextureUsage::ORDERED;
+    pub const DEFAULT_USAGE: wgpu::TextureUsage = wgpu::TextureUsage::COPY_DST;
     pub const DEFAULT_DESCRIPTOR: wgpu::TextureDescriptor<'static> = wgpu::TextureDescriptor {
         label: Some("nannou_texture_descriptor"),
         size: Self::DEFAULT_SIZE,

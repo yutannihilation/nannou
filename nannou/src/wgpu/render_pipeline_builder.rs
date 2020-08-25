@@ -45,6 +45,7 @@ impl<'a> RenderPipelineBuilder<'a> {
     // Rasterization state defaults for the case where the user has submitted a fragment shader.
     pub const DEFAULT_FRONT_FACE: wgpu::FrontFace = wgpu::FrontFace::Ccw;
     pub const DEFAULT_CULL_MODE: wgpu::CullMode = wgpu::CullMode::None;
+    pub const DEFAULT_CLAMP_DEPTH: bool = false;
     pub const DEFAULT_DEPTH_BIAS: i32 = 0;
     pub const DEFAULT_DEPTH_BIAS_SLOPE_SCALE: f32 = 0.0;
     pub const DEFAULT_DEPTH_BIAS_CLAMP: f32 = 0.0;
@@ -52,6 +53,7 @@ impl<'a> RenderPipelineBuilder<'a> {
         wgpu::RasterizationStateDescriptor {
             front_face: Self::DEFAULT_FRONT_FACE,
             cull_mode: Self::DEFAULT_CULL_MODE,
+            clamp_depth: Self::DEFAULT_CLAMP_DEPTH,
             depth_bias: Self::DEFAULT_DEPTH_BIAS,
             depth_bias_slope_scale: Self::DEFAULT_DEPTH_BIAS_SLOPE_SCALE,
             depth_bias_clamp: Self::DEFAULT_DEPTH_BIAS_CLAMP,
@@ -96,10 +98,12 @@ impl<'a> RenderPipelineBuilder<'a> {
             format: Self::DEFAULT_DEPTH_FORMAT,
             depth_write_enabled: Self::DEFAULT_DEPTH_WRITE_ENABLED,
             depth_compare: Self::DEFAULT_DEPTH_COMPARE,
-            stencil_front: Self::DEFAULT_STENCIL_FRONT,
-            stencil_back: Self::DEFAULT_STENCIL_BACK,
-            stencil_read_mask: Self::DEFAULT_STENCIL_READ_MASK,
-            stencil_write_mask: Self::DEFAULT_STENCIL_WRITE_MASK,
+            stencil: wgpu::StencilStateDescriptor {
+                front: Self::DEFAULT_STENCIL_FRONT,
+                back: Self::DEFAULT_STENCIL_BACK,
+                read_mask: Self::DEFAULT_STENCIL_READ_MASK,
+                write_mask: Self::DEFAULT_STENCIL_WRITE_MASK,
+            },
         };
 
     // Vertex buffer defaults.
@@ -295,7 +299,7 @@ impl<'a> RenderPipelineBuilder<'a> {
         let state = self
             .depth_stencil_state
             .get_or_insert(Self::DEFAULT_DEPTH_STENCIL_STATE);
-        state.stencil_front = stencil;
+        state.stencil.front = stencil;
         self
     }
 
@@ -303,7 +307,7 @@ impl<'a> RenderPipelineBuilder<'a> {
         let state = self
             .depth_stencil_state
             .get_or_insert(Self::DEFAULT_DEPTH_STENCIL_STATE);
-        state.stencil_back = stencil;
+        state.stencil.back = stencil;
         self
     }
 
@@ -311,7 +315,7 @@ impl<'a> RenderPipelineBuilder<'a> {
         let state = self
             .depth_stencil_state
             .get_or_insert(Self::DEFAULT_DEPTH_STENCIL_STATE);
-        state.stencil_read_mask = mask;
+        state.stencil.read_mask = mask;
         self
     }
 
@@ -319,7 +323,7 @@ impl<'a> RenderPipelineBuilder<'a> {
         let state = self
             .depth_stencil_state
             .get_or_insert(Self::DEFAULT_DEPTH_STENCIL_STATE);
-        state.stencil_write_mask = mask;
+        state.stencil.write_mask = mask;
         self
     }
 

@@ -405,7 +405,8 @@ impl<'a> Renderer<'a> {
             .usage(wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST)
             .format(Self::GLYPH_CACHE_TEXTURE_FORMAT)
             .build(device);
-        let glyph_cache_texture_view = glyph_cache_texture.create_default_view();
+        let glyph_cache_texture_view =
+            glyph_cache_texture.create_view(&wgpu::TextureViewDescriptor::default());
 
         // Create the depth texture.
         let depth_texture =

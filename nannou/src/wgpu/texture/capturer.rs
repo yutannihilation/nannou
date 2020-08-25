@@ -217,7 +217,9 @@ impl Capturer {
             }
 
             // Encode the texture format conversion.
-            let dst_view = converter_data_pair.dst_texture.create_default_view();
+            let dst_view = converter_data_pair
+                .dst_texture
+                .create_view(&wgpu::TextureViewDescriptor::default());
             converter_data_pair
                 .reshaper
                 .encode_render_pass(&dst_view, encoder);
@@ -380,7 +382,7 @@ fn create_converter_data_pair(
     // Create the converter.
     let src_sample_count = src_texture.sample_count();
     let src_component_type = src_texture.component_type();
-    let src_view = src_texture.create_default_view();
+    let src_view = src_texture.create_view(&wgpu::TextureViewDescriptor::default());
     let dst_sample_count = 1;
     let dst_format = dst_texture.format();
     let reshaper = wgpu::TextureReshaper::new(

@@ -34,7 +34,7 @@ impl LayoutBuilder {
         self,
         visibility: wgpu::ShaderStage,
         dynamic: bool,
-        min_binding_size: wgpu::BufferSize,
+        min_binding_size: Option<wgpu::BufferSize>,
     ) -> Self {
         let ty = wgpu::BindingType::UniformBuffer {
             dynamic,

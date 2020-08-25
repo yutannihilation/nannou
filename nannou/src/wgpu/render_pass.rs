@@ -50,7 +50,7 @@ impl<'a> ColorAttachmentDescriptorBuilder<'a> {
     }
 
     /// The beginning-of-pass load operation for this color attachment.
-    pub fn load_op(mut self, load_op: wgpu::LoadOp<f32>) -> Self {
+    pub fn load_op(mut self, load_op: wgpu::LoadOp<wgpu::Color>) -> Self {
         self.descriptor.ops.load = load_op;
         self
     }

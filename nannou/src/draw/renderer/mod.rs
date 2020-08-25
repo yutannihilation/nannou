@@ -431,7 +431,10 @@ impl<'a> Renderer<'a> {
         });
 
         // Bind group for uniforms.
-        let uniform_bind_group_layout = create_uniform_bind_group_layout(device);
+        let uniform_bind_group_layout = create_uniform_bind_group_layout(
+            device,
+            wgpu::BufferSize::new(std::mem::size_of_val(uniforms_bytes) as u64),
+        );
         let uniform_bind_group =
             create_uniform_bind_group(device, &uniform_bind_group_layout, &uniform_buffer);
 
@@ -815,23 +818,20 @@ impl<'a> Renderer<'a> {
 
         // Retrieve the clear values based on the bg color.
         let bg_color = draw.state.borrow().background_color;
-        let (load_op, clear_color) = match bg_color {
-            None => (wgpu::LoadOp::Load, wgpu::Color::TRANSPARENT),
+        let load_op = match bg_color {
+            None => wgpu::LoadOp::Load,
             Some(color) => {
                 let (r, g, b, a) = color.into();
                 let (r, g, b, a) = (r as f64, g as f64, b as f64, a as f64);
                 let clear_color = wgpu::Color { r, g, b, a };
-                (wgpu::LoadOp::Clear, clear_color)
+                wgpu::LoadOp::Clear(clear_color)
             }
         };
 
         // Create render pass builder.
         let render_pass_builder = wgpu::RenderPassBuilder::new()
             .color_attachment(output_attachment, |color| {
-                color
-                    .resolve_target(resolve_target)
-                    .load_op(load_op)
-                    .clear_color(clear_color)
+                color.resolve_target(resolve_target).load_op(load_op)
             })
             .depth_stencil_attachment(&*depth_texture_view, |depth| depth);
 
@@ -896,11 +896,11 @@ impl<'a> Renderer<'a> {
         let mut render_pass = render_pass_builder.begin(encoder);
 
         // Set the buffers.
-        render_pass.set_index_buffer(&index_buffer, 0, 0);
-        render_pass.set_vertex_buffer(0, &point_buffer, 0, 0);
-        render_pass.set_vertex_buffer(1, &color_buffer, 0, 0);
-        render_pass.set_vertex_buffer(2, &tex_coords_buffer, 0, 0);
-        render_pass.set_vertex_buffer(3, &mode_buffer, 0, 0);
+        render_pass.set_index_buffer(index_buffer.slice(..));
+        render_pass.set_vertex_buffer(0, point_buffer.slice(..));
+        render_pass.set_vertex_buffer(1, color_buffer.slice(..));
+        render_pass.set_vertex_buffer(2, tex_coords_buffer.slice(..));
+        render_pass.set_vertex_buffer(3, mode_buffer.slice(..));
 
         // Set the uniform and text bind groups here.
         render_pass.set_bind_group(0, uniform_bind_group, &[]);
@@ -1041,7 +1041,7 @@ fn create_uniforms([img_w, img_h]: [u32; 2], scale_factor: f32) -> Uniforms {
 
 fn create_uniform_bind_group_layout(
     device: &wgpu::Device,
-    min_binding_size: wgpu::BufferSize,
+    min_binding_size: Option<wgpu::BufferSize>,
 ) -> wgpu::BindGroupLayout {
     wgpu::BindGroupLayoutBuilder::new()
         .uniform_buffer(wgpu::ShaderStage::VERTEX, false, min_binding_size)

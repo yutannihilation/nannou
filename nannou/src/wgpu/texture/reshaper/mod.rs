@@ -127,7 +127,7 @@ impl Reshaper {
             .color_attachment(dst_texture, |color| color)
             .begin(encoder);
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_vertex_buffer(0, &self.vertex_buffer, 0, 0);
+        render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_bind_group(0, &self.bind_group, &[]);
         let vertex_range = 0..VERTICES.len() as u32;
         let instance_range = 0..1;

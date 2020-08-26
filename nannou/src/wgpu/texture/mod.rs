@@ -130,6 +130,11 @@ impl Texture {
         self.descriptor.size
     }
 
+    // TODO
+    pub fn array_layer_count(&self) -> u32 {
+        1
+    }
+
     pub fn mip_level_count(&self) -> u32 {
         self.descriptor.mip_level_count
     }
@@ -226,7 +231,7 @@ impl Texture {
             dimension: Some(dimension),
             aspect,
             base_mip_level: 0,
-            level_count: self.mip_level_count(),
+            level_count: std::num::NonZeroU32::new(self.mip_level_count()),
             base_array_layer: 0,
             array_layer_count: None,
             label: None,
@@ -376,24 +381,24 @@ impl<'a> TextureView<'a> {
         &self.descriptor
     }
 
-    pub fn descriptor_cloned(&self) -> wgpu::TextureViewDescriptor {
+    pub fn descriptor_cloned(&'a self) -> wgpu::TextureViewDescriptor<'a> {
         wgpu::TextureViewDescriptor {
             label: None,
-            format: Some(self.format()),
-            dimension: Some(self.dimension()),
+            format: self.format(),
+            dimension: self.dimension(),
             aspect: self.aspect(),
             base_mip_level: self.base_mip_level(),
-            level_count: Some(self.level_count()),
-            base_array_layer: Some(self.base_array_layer()),
-            array_layer_count: Some(self.array_layer_count()),
+            level_count: self.level_count(),
+            base_array_layer: self.base_array_layer(),
+            array_layer_count: self.array_layer_count(),
         }
     }
 
-    pub fn format(&self) -> wgpu::TextureFormat {
+    pub fn format(&self) -> Option<wgpu::TextureFormat> {
         self.descriptor.format
     }
 
-    pub fn dimension(&self) -> wgpu::TextureViewDimension {
+    pub fn dimension(&self) -> Option<wgpu::TextureViewDimension> {
         self.descriptor.dimension
     }
 
@@ -405,7 +410,7 @@ impl<'a> TextureView<'a> {
         self.descriptor.base_mip_level
     }
 
-    pub fn level_count(&self) -> u32 {
+    pub fn level_count(&self) -> Option<std::num::NonZeroU32> {
         self.descriptor.level_count
     }
 
@@ -413,12 +418,13 @@ impl<'a> TextureView<'a> {
         self.descriptor.base_array_layer
     }
 
-    pub fn array_layer_count(&self) -> u32 {
+    pub fn array_layer_count(&self) -> Option<std::num::NonZeroU32> {
         self.descriptor.array_layer_count
     }
 
     pub fn component_type(&self) -> wgpu::TextureComponentType {
-        self.format().into()
+        // TODO
+        self.format().unwrap().into()
     }
 
     pub fn id(&self) -> TextureViewId {
@@ -471,7 +477,8 @@ impl Builder {
     pub const DEFAULT_DESCRIPTOR: wgpu::TextureDescriptor<'static> = wgpu::TextureDescriptor {
         label: Some("nannou_texture_descriptor"),
         size: Self::DEFAULT_SIZE,
-        array_layer_count: Self::DEFAULT_ARRAY_LAYER_COUNT,
+        // TODO
+        // array_layer_count: Self::DEFAULT_ARRAY_LAYER_COUNT,
         mip_level_count: Self::DEFAULT_MIP_LEVEL_COUNT,
         sample_count: Self::DEFAULT_SAMPLE_COUNT,
         dimension: Self::DEFAULT_DIMENSION,
@@ -519,7 +526,8 @@ impl Builder {
     }
 
     pub fn array_layer_count(mut self, count: u32) -> Self {
-        self.descriptor.array_layer_count = count;
+        // TODO
+        // self.descriptor.array_layer_count = count;
         self
     }
 
@@ -575,12 +583,14 @@ impl Builder {
 
 impl<'a> ViewBuilder<'a> {
     pub fn format(mut self, format: wgpu::TextureFormat) -> Self {
-        self.descriptor.format = format;
+        // TODO
+        // self.descriptor.format = format;
         self
     }
 
     pub fn dimension(mut self, dimension: wgpu::TextureViewDimension) -> Self {
-        self.descriptor.dimension = dimension;
+        // TODO
+        // self.descriptor.dimension = dimension;
         self
     }
 
@@ -590,7 +600,7 @@ impl<'a> ViewBuilder<'a> {
     }
 
     pub fn level_count(mut self, level_count: u32) -> Self {
-        self.descriptor.level_count = level_count;
+        self.descriptor.level_count = std::num::NonZeroU32::new(level_count);
         self
     }
 
@@ -600,7 +610,7 @@ impl<'a> ViewBuilder<'a> {
     }
 
     pub fn array_layer_count(mut self, array_layer_count: u32) -> Self {
-        self.descriptor.array_layer_count = array_layer_count;
+        self.descriptor.array_layer_count = std::num::NonZeroU32::new(array_layer_count);
         self
     }
 

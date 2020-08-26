@@ -679,7 +679,7 @@ impl<'a> App<'a> {
     }
 
     /// Begin building a new window.
-    pub fn new_window(&self) -> window::Builder {
+    pub fn new_window(&'a self) -> window::Builder<'a> {
         let builder = window::Builder::new(self);
         let builder = match self.default_window_size {
             Some(DefaultWindowSize::Fullscreen) => builder.fullscreen(),

@@ -760,7 +760,8 @@ where
         // Submit command for copying pixel data to the texture.
         let buffer_copy_view = texture.default_buffer_copy_view(&buffer);
         let mut texture_copy_view = texture.default_copy_view();
-        texture_copy_view.array_layer = layer as u32;
+        // TODO
+        // texture_copy_view.array_layer = layer as u32;
         let extent = texture.extent();
         encoder.copy_buffer_to_texture(buffer_copy_view, texture_copy_view, extent);
     }

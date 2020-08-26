@@ -72,6 +72,7 @@ impl AdapterMap {
         options: wgpu::RequestAdapterOptions<'b>,
         backends: wgpu::BackendBit,
     ) -> Option<Arc<ActiveAdapter>> {
+        // TODO
         futures::executor::block_on(self.get_or_request_async(options, backends))
     }
 

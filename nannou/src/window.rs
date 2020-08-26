@@ -792,16 +792,16 @@ impl<'app> Builder<'app> {
         };
 
         // Build the wgpu surface.
-        let surface = wgpu::Surface::create(&window);
+        let instance = wgpu::Instance::new(backends);
+        let surface = unsafe { instance.create_surface(&window) };
 
         // Request the adapter.
         let request_adapter_opts = wgpu::RequestAdapterOptions {
             power_preference,
             compatible_surface: Some(&surface),
         };
-        let adapter = app
-            .wgpu_adapters()
-            .get_or_request(request_adapter_opts, backends)
+        // TODO
+        let adapter = futures::executor::block_on(instance.request_adapter(&request_adapter_opts))
             .ok_or(BuildError::NoAvailableAdapter)?;
 
         // Instantiate the logical device.
@@ -1363,7 +1363,7 @@ impl<'a> Window<'a> {
     // Custom methods.
 
     // A utility function to simplify the recreation of a swap_chain.
-    pub(crate) fn rebuild_swap_chain(&mut self, size_px: [u32; 2]) {
+    pub(crate) fn rebuild_swap_chain(&'a mut self, size_px: [u32; 2]) {
         std::mem::drop(self.swap_chain.swap_chain.take());
         let [width, height] = size_px;
         self.swap_chain.descriptor.width = width;

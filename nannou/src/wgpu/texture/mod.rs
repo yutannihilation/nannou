@@ -381,7 +381,7 @@ impl<'a> TextureView<'a> {
         &self.descriptor
     }
 
-    pub fn descriptor_cloned(&'a self) -> wgpu::TextureViewDescriptor<'a> {
+    pub fn descriptor_cloned(&self) -> wgpu::TextureViewDescriptor<'a> {
         wgpu::TextureViewDescriptor {
             label: None,
             format: self.format(),

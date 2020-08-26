@@ -63,7 +63,7 @@ pub use wgpu::{
     CommandBufferDescriptor, CommandEncoder, CommandEncoderDescriptor, CompareFunction,
     ComputePass, ComputePipeline, ComputePipelineDescriptor, CullMode, DepthStencilStateDescriptor,
     Device, DeviceDescriptor, DeviceType, DynamicOffset, Extent3d, Features, FilterMode, FrontFace,
-    IndexFormat, InputStepMode, Limits, LoadOp, Maintain, MapMode, Operations, Origin3d,
+    IndexFormat, InputStepMode, Instance, Limits, LoadOp, Maintain, MapMode, Operations, Origin3d,
     PipelineLayout, PipelineLayoutDescriptor, PowerPreference, PresentMode, PrimitiveTopology,
     ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor, RenderPass,
     RenderPassColorAttachmentDescriptor, RenderPassDepthStencilAttachmentDescriptor,

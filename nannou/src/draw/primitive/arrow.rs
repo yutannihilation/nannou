@@ -155,13 +155,13 @@ impl<S> SetColor<ColorScalar> for Arrow<S> {
     }
 }
 
-impl<'a, S> From<Arrow<S>> for Primitive<'a, S> {
+impl<S> From<Arrow<S>> for Primitive<S> {
     fn from(prim: Arrow<S>) -> Self {
         Primitive::Arrow(prim)
     }
 }
 
-impl<'a, S> Into<Option<Arrow<S>>> for Primitive<'a, S> {
+impl<S> Into<Option<Arrow<S>>> for Primitive<S> {
     fn into(self) -> Option<Arrow<S>> {
         match self {
             Primitive::Arrow(prim) => Some(prim),
@@ -175,7 +175,7 @@ impl<'a> draw::renderer::RenderPrimitive<'a> for Arrow<f32> {
         self,
         mut ctxt: draw::renderer::RenderContext<'a>,
         mesh: &mut draw::Mesh,
-    ) -> draw::renderer::PrimitiveRender<'a> {
+    ) -> draw::renderer::PrimitiveRender {
         let Arrow {
             line,
             head_length,

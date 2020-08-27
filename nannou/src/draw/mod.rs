@@ -78,7 +78,7 @@ pub struct Context<'a, S = geom::scalar::Default> {
 #[derive(Clone, Debug)]
 pub enum DrawCommand<'a, S = geom::scalar::Default> {
     /// Draw a primitive.
-    Primitive(Primitive<'a, S>),
+    Primitive(Primitive<S>),
     /// A change in the rendering context occurred.
     Context(Context<'a, S>),
 }
@@ -113,7 +113,7 @@ where
     /// Primitives that are in the process of being drawn.
     ///
     /// Keys are indices into the `draw_commands` Vec.
-    drawing: HashMap<usize, Primitive<'a, S>>,
+    drawing: HashMap<usize, Primitive<S>>,
     /// The list of recorded draw commands.
     ///
     /// An element may be `None` if it is a primitive in the process of being drawn.
@@ -179,7 +179,7 @@ where
     }
 
     // Insert the draw primitive command at the given index.
-    fn insert_draw_command(&'a mut self, index: usize, prim: Primitive<'a, S>) {
+    fn insert_draw_command(&'a mut self, index: usize, prim: Primitive<S>) {
         if let Some(elem) = self.draw_commands.get_mut(index) {
             *elem = Some(DrawCommand::Primitive(prim));
         }
@@ -505,8 +505,8 @@ where
     /// Add the given type to be drawn.
     pub fn a<T>(&'a self, primitive: T) -> Drawing<'a, T, S>
     where
-        T: Into<Primitive<'a, S>>,
-        Primitive<'a, S>: Into<Option<T>>,
+        T: Into<Primitive<S>>,
+        Primitive<S>: Into<Option<T>>,
     {
         let index = {
             let mut state = self.state.borrow_mut();
@@ -594,7 +594,7 @@ where
     pub fn texture(
         &'a self,
         view: &'a dyn wgpu::ToTextureView,
-    ) -> Drawing<'a, primitive::Texture<'a, S>, S> {
+    ) -> Drawing<'a, primitive::Texture<S>, S> {
         self.a(primitive::Texture::new(view))
     }
 

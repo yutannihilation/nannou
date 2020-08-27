@@ -59,7 +59,7 @@ impl<'a> draw::renderer::RenderPrimitive<'a> for Ellipse<f32> {
         self,
         ctxt: draw::renderer::RenderContext<'a>,
         mesh: &mut draw::Mesh,
-    ) -> draw::renderer::PrimitiveRender<'a> {
+    ) -> draw::renderer::PrimitiveRender {
         let Ellipse {
             dimensions,
             polygon,
@@ -169,13 +169,13 @@ impl<S> SetPolygon<S> for Ellipse<S> {
 
 // Primitive conversion.
 
-impl<'a, S> From<Ellipse<S>> for Primitive<'a, S> {
+impl<S> From<Ellipse<S>> for Primitive<S> {
     fn from(prim: Ellipse<S>) -> Self {
         Primitive::Ellipse(prim)
     }
 }
 
-impl<'a, S> Into<Option<Ellipse<S>>> for Primitive<'a, S> {
+impl<S> Into<Option<Ellipse<S>>> for Primitive<S> {
     fn into(self) -> Option<Ellipse<S>> {
         match self {
             Primitive::Ellipse(prim) => Some(prim),

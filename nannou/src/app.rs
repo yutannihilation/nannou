@@ -105,7 +105,7 @@ pub struct App<'a> {
     capture_frame_timeout: Option<Duration>,
     pub(crate) event_loop_window_target: Option<EventLoopWindowTarget>,
     pub(crate) event_loop_proxy: Proxy,
-    pub(crate) windows: RefCell<HashMap<window::Id, Window<'a>>>,
+    pub(crate) windows: RefCell<HashMap<window::Id, Window>>,
     /// A map of active wgpu physial device adapters.
     adapters: wgpu::AdapterMap,
     draw_state: DrawState<'a>,
@@ -162,7 +162,7 @@ struct Config {
 #[derive(Debug)]
 struct DrawState<'a> {
     draw: RefCell<draw::Draw<'a, DrawScalar>>,
-    renderers: RefCell<HashMap<window::Id, RefCell<draw::Renderer<'a>>>>,
+    renderers: RefCell<HashMap<window::Id, RefCell<draw::Renderer>>>,
 }
 
 /// The app uses a set scalar type in order to provide a simplistic API to users.
@@ -1369,10 +1369,7 @@ where
         // with that window so that the state doesn't leak.
         //
         // Returns the `Window` that was removed.
-        fn remove_related_window_state(
-            app: &App<'static>,
-            window_id: &window::Id,
-        ) -> Option<Window<'static>> {
+        fn remove_related_window_state(app: &App, window_id: &window::Id) -> Option<Window> {
             app.draw_state.renderers.borrow_mut().remove(window_id);
             app.windows.borrow_mut().remove(window_id)
         }

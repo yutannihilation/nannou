@@ -30,21 +30,21 @@ pub use self::tri::Tri;
 /// This also allows us to flush all pending drawings to the mesh if `Draw::to_frame` is called
 /// before their respective **Drawing** types are dropped.
 #[derive(Clone, Debug)]
-pub enum Primitive<'a, S = geom::scalar::Default> {
+pub enum Primitive<S = geom::scalar::Default> {
     Arrow(Arrow<S>),
     Ellipse(Ellipse<S>),
     Line(Line<S>),
     MeshVertexless(mesh::Vertexless),
-    Mesh(Mesh<'a, S>),
+    Mesh(Mesh<S>),
     PathInit(PathInit<S>),
     PathFill(PathFill<S>),
     PathStroke(PathStroke<S>),
-    Path(Path<'a, S>),
+    Path(Path<S>),
     PolygonInit(PolygonInit<S>),
-    Polygon(Polygon<'a, S>),
+    Polygon(Polygon<S>),
     Quad(Quad<S>),
     Rect(Rect<S>),
     Text(Text<S>),
-    Texture(Texture<'a, S>),
+    Texture(Texture<S>),
     Tri(Tri<S>),
 }

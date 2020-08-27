@@ -37,9 +37,9 @@ pub struct Texture {
 /// be of the whole texture, but it might also be of some sub-section of the texture. When an API
 /// provides
 #[derive(Debug)]
-pub struct TextureView<'a> {
+pub struct TextureView {
     handle: Arc<TextureViewHandle>,
-    descriptor: wgpu::TextureViewDescriptor<'a>,
+    descriptor: wgpu::TextureViewDescriptor<'static>,
     texture_extent: wgpu::Extent3d,
     texture_id: TextureId,
 }
@@ -76,7 +76,7 @@ pub struct Builder {
 #[derive(Debug)]
 pub struct ViewBuilder<'a> {
     texture: &'a wgpu::Texture,
-    descriptor: wgpu::TextureViewDescriptor<'a>,
+    descriptor: wgpu::TextureViewDescriptor<'static>,
 }
 
 /// A wrapper around a `wgpu::Buffer` containing bytes of a known length.
@@ -376,7 +376,7 @@ impl Texture {
     }
 }
 
-impl<'a> TextureView<'a> {
+impl TextureView {
     pub fn descriptor(&self) -> &wgpu::TextureViewDescriptor {
         &self.descriptor
     }
@@ -625,7 +625,7 @@ impl<'a> ViewBuilder<'a> {
         self.base_array_layer(layer).array_layer_count(1)
     }
 
-    pub fn build(self) -> TextureView<'a> {
+    pub fn build(self) -> TextureView {
         TextureView {
             handle: Arc::new(self.texture.inner().create_view(&self.descriptor)),
             descriptor: self.descriptor,
@@ -684,7 +684,7 @@ where
     }
 }
 
-impl<'a> ToTextureView for TextureView<'a> {
+impl ToTextureView for TextureView {
     fn to_texture_view(&self) -> TextureView {
         self.clone()
     }
@@ -696,7 +696,7 @@ impl ToTextureView for Texture {
     }
 }
 
-impl<'a> Clone for TextureView<'a> {
+impl Clone for TextureView {
     fn clone(&self) -> Self {
         TextureView {
             handle: self.handle.clone(),
@@ -722,7 +722,7 @@ impl Deref for Texture {
     }
 }
 
-impl<'a> Deref for TextureView<'a> {
+impl Deref for TextureView {
     type Target = TextureViewHandle;
     fn deref(&self) -> &Self::Target {
         &self.handle

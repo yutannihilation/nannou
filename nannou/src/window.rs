@@ -222,13 +222,13 @@ fn_any!(ClosedFn<M>, ClosedFnAny);
 /// The **Window** acts as a wrapper around the `winit::window::Window` and the `wgpu::Surface`
 /// types. It also manages the associated swap chain, providing a more nannou-friendly API.
 #[derive(Debug)]
-pub struct Window<'a> {
+pub struct Window {
     pub(crate) window: winit::window::Window,
     pub(crate) surface: wgpu::Surface,
     pub(crate) device_queue_pair: Arc<wgpu::DeviceQueuePair>,
     msaa_samples: u32,
     pub(crate) swap_chain: WindowSwapChain,
-    pub(crate) frame_data: Option<FrameData<'a>>,
+    pub(crate) frame_data: Option<FrameData>,
     pub(crate) frame_count: u64,
     pub(crate) user_functions: UserFunctions,
     pub(crate) tracked_state: TrackedState,
@@ -236,9 +236,9 @@ pub struct Window<'a> {
 
 // Data related to `Frame`s produced for this window's swapchain textures.
 #[derive(Debug)]
-pub(crate) struct FrameData<'swap_chain> {
+pub(crate) struct FrameData {
     // Data for rendering a `Frame`'s intermediary image to a swap chain image.
-    pub(crate) render: frame::RenderData<'swap_chain>,
+    pub(crate) render: frame::RenderData,
     // Data for capturing a `Frame`'s intermediary image before submission.
     pub(crate) capture: frame::CaptureData,
 }
@@ -994,7 +994,7 @@ impl<'app> Builder<'app> {
     }
 }
 
-impl<'a> Window<'a> {
+impl Window {
     // `winit::window::Window` methods.
     //
     // NOTE: On new versions of winit, we should check whether or not new `Window` methods have
@@ -1365,7 +1365,7 @@ impl<'a> Window<'a> {
     // Custom methods.
 
     // A utility function to simplify the recreation of a swap_chain.
-    pub(crate) fn rebuild_swap_chain(&'a mut self, size_px: [u32; 2]) {
+    pub(crate) fn rebuild_swap_chain(&mut self, size_px: [u32; 2]) {
         std::mem::drop(self.swap_chain.swap_chain.take());
         let [width, height] = size_px;
         self.swap_chain.descriptor.width = width;
@@ -1456,7 +1456,7 @@ impl<'a> Window<'a> {
 
 // Drop implementations.
 
-impl<'a> Drop for Window<'a> {
+impl Drop for Window {
     fn drop(&mut self) {
         if self.await_capture_frame_jobs().is_err() {
             // TODO: Replace eprintlns with proper logging.

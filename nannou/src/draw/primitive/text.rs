@@ -245,7 +245,7 @@ impl<'a> draw::renderer::RenderPrimitive<'a> for Text<f32> {
         self,
         ctxt: draw::renderer::RenderContext,
         mesh: &mut draw::Mesh,
-    ) -> draw::renderer::PrimitiveRender<'a> {
+    ) -> draw::renderer::PrimitiveRender {
         let Text {
             spatial,
             style,
@@ -413,13 +413,13 @@ impl<S> SetColor<ColorScalar> for Text<S> {
 
 // Primitive conversions.
 
-impl<'a, S> From<Text<S>> for Primitive<'a, S> {
+impl<S> From<Text<S>> for Primitive<S> {
     fn from(prim: Text<S>) -> Self {
         Primitive::Text(prim)
     }
 }
 
-impl<'a, S> Into<Option<Text<S>>> for Primitive<'a, S> {
+impl<S> Into<Option<Text<S>>> for Primitive<S> {
     fn into(self) -> Option<Text<S>> {
         match self {
             Primitive::Text(prim) => Some(prim),

@@ -17,21 +17,17 @@ use crate::wgpu::util::DeviceExt;
 /// Draw API primitives that may be rendered via the **Renderer** type.
 pub trait RenderPrimitive<'a> {
     /// Render self into the given mesh.
-    fn render_primitive(
-        self,
-        ctxt: RenderContext<'a>,
-        mesh: &mut draw::Mesh,
-    ) -> PrimitiveRender<'a>;
+    fn render_primitive(self, ctxt: RenderContext<'a>, mesh: &mut draw::Mesh) -> PrimitiveRender;
 }
 
 /// Information about the way in which a primitive was rendered.
-pub struct PrimitiveRender<'a> {
+pub struct PrimitiveRender {
     /// Whether or not a specific texture must be available when this primitive is drawn.
     ///
     /// If `Some` and the given texture is different than the currently set texture, a render
     /// command will be encoded that switches from the previous texture's bind group to the new
     /// one.
-    pub texture_view: Option<wgpu::TextureView<'a>>,
+    pub texture_view: Option<wgpu::TextureView>,
     /// The way in which vertices should be coloured in the fragment shader.
     pub vertex_mode: VertexMode,
 }
@@ -77,7 +73,7 @@ pub enum VertexMode {
 
 /// A helper type aimed at simplifying the rendering of conrod primitives via wgpu.
 #[derive(Debug)]
-pub struct Renderer<'a> {
+pub struct Renderer {
     glyph_cache: GlyphCache,
     vs_mod: wgpu::ShaderModule,
     fs_mod: wgpu::ShaderModule,
@@ -85,9 +81,9 @@ pub struct Renderer<'a> {
     pipelines: HashMap<PipelineId, wgpu::RenderPipeline>,
     glyph_cache_texture: wgpu::Texture,
     depth_texture: wgpu::Texture,
-    depth_texture_view: wgpu::TextureView<'a>,
+    depth_texture_view: wgpu::TextureView,
     default_texture: wgpu::Texture,
-    default_texture_view: wgpu::TextureView<'a>,
+    default_texture_view: wgpu::TextureView,
     uniform_bind_group_layout: wgpu::BindGroupLayout,
     uniform_bind_group: wgpu::BindGroup,
     text_bind_group_layout: wgpu::BindGroupLayout,
@@ -173,18 +169,14 @@ struct PipelineId {
     texture_component_type: wgpu::TextureComponentType,
 }
 
-impl<'a> Default for PrimitiveRender<'a> {
+impl Default for PrimitiveRender {
     fn default() -> Self {
         Self::color()
     }
 }
 
-impl<'a> RenderPrimitive<'a> for draw::Primitive<'a> {
-    fn render_primitive(
-        self,
-        ctxt: RenderContext<'a>,
-        mesh: &mut draw::Mesh,
-    ) -> PrimitiveRender<'a> {
+impl<'a> RenderPrimitive<'a> for draw::Primitive {
+    fn render_primitive(self, ctxt: RenderContext<'a>, mesh: &mut draw::Mesh) -> PrimitiveRender {
         match self {
             draw::Primitive::Arrow(prim) => prim.render_primitive(ctxt, mesh),
             draw::Primitive::Mesh(prim) => prim.render_primitive(ctxt, mesh),
@@ -212,7 +204,7 @@ impl fmt::Debug for GlyphCache {
     }
 }
 
-impl<'a> PrimitiveRender<'a> {
+impl PrimitiveRender {
     /// Specify a vertex mode for the primitive render.
     pub fn vertex_mode(vertex_mode: VertexMode) -> Self {
         PrimitiveRender {
@@ -225,7 +217,7 @@ impl<'a> PrimitiveRender<'a> {
         Self::vertex_mode(VertexMode::Color)
     }
 
-    pub fn texture(texture_view: wgpu::TextureView<'a>) -> Self {
+    pub fn texture(texture_view: wgpu::TextureView) -> Self {
         PrimitiveRender {
             vertex_mode: VertexMode::Texture,
             texture_view: Some(texture_view),
@@ -300,7 +292,7 @@ impl<'a> Builder {
         self,
         device: &wgpu::Device,
         descriptor: &wgpu::TextureDescriptor,
-    ) -> Renderer<'a> {
+    ) -> Renderer {
         let scale_factor = 1.0;
         self.build(
             device,
@@ -320,7 +312,7 @@ impl<'a> Builder {
         output_scale_factor: f32,
         sample_count: u32,
         output_color_format: wgpu::TextureFormat,
-    ) -> Renderer<'a> {
+    ) -> Renderer {
         Renderer::new(
             device,
             output_attachment_size,
@@ -354,7 +346,7 @@ impl GlyphCache {
     }
 }
 
-impl<'a> Renderer<'a> {
+impl Renderer {
     /// The default depth format
     pub const DEFAULT_DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
     /// The default size for the inner glyph cache.
@@ -503,9 +495,9 @@ impl<'a> Renderer<'a> {
     ///
     /// Note that the given **Draw** instance will be *drained* of its commands.
     pub fn fill(
-        &'a mut self,
-        device: &'a wgpu::Device,
-        draw: &'a draw::Draw<'a>,
+        &mut self,
+        device: &wgpu::Device,
+        draw: &draw::Draw,
         scale_factor: f32,
         output_attachment_size: [u32; 2],
     ) {
@@ -772,14 +764,14 @@ impl<'a> Renderer<'a> {
     /// If the `output_attachment` is multisampled and should be resolved to another texture,
     /// include the `resolve_target`.
     pub fn encode_render_pass(
-        &'a mut self,
-        device: &'a wgpu::Device,
+        &mut self,
+        device: &wgpu::Device,
         encoder: &mut wgpu::CommandEncoder,
-        draw: &'a draw::Draw<'a>,
+        draw: &draw::Draw,
         scale_factor: f32,
         output_attachment_size: [u32; 2],
-        output_attachment: &wgpu::TextureView<'a>,
-        resolve_target: Option<&wgpu::TextureView<'a>>,
+        output_attachment: &wgpu::TextureView,
+        resolve_target: Option<&wgpu::TextureView>,
     ) {
         self.clear();
         self.fill(device, draw, scale_factor, output_attachment_size);
@@ -942,11 +934,11 @@ impl<'a> Renderer<'a> {
     /// Encode the necessary commands to render the contents of the given **Draw**ing to the given
     /// **Texture**.
     pub fn render_to_texture(
-        &'a mut self,
-        device: &'a wgpu::Device,
+        &mut self,
+        device: &wgpu::Device,
         encoder: &mut wgpu::CommandEncoder,
-        draw: &'a draw::Draw<'a>,
-        texture: &'a wgpu::Texture,
+        draw: &draw::Draw,
+        texture: &wgpu::Texture,
     ) {
         let size = texture.size();
         let view = texture.view().build();
@@ -967,11 +959,11 @@ impl<'a> Renderer<'a> {
     /// Encode the necessary commands to render the contents of the given **Draw**ing to the given
     /// **Frame**.
     pub fn render_to_frame(
-        &'a mut self,
-        device: &'a wgpu::Device,
-        draw: &'a draw::Draw<'a>,
+        &mut self,
+        device: &wgpu::Device,
+        draw: &draw::Draw,
         scale_factor: f32,
-        frame: &'a Frame,
+        frame: &Frame,
     ) {
         let size = frame.texture().size();
         let attachment = frame.texture_view();

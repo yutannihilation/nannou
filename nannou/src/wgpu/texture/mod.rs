@@ -222,7 +222,7 @@ impl Texture {
     }
 
     /// The view descriptor describing a full view of the texture.
-    pub fn default_view_descriptor(&self) -> wgpu::TextureViewDescriptor {
+    pub fn default_view_descriptor(&self) -> wgpu::TextureViewDescriptor<'static> {
         let dimension = self.view_dimension();
         // TODO: Is this correct? Should we check the format?
         let aspect = wgpu::TextureAspect::All;

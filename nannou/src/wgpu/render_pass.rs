@@ -93,43 +93,49 @@ impl<'a> DepthStencilAttachmentDescriptorBuilder<'a> {
 
     /// The beginning-of-pass load operation for this depth attachment.
     pub fn depth_load_op(mut self, load_op: wgpu::LoadOp<f32>) -> Self {
-        // TODO
-        // self.descriptor.depth_ops.load = load_op;
+        if let Some(mut ops) = self.descriptor.depth_ops {
+            ops.load = load_op;
+        }
         self
     }
 
     /// The end-of-pass store operation for this depth attachment.
     pub fn depth_store_op(mut self, store_op: bool) -> Self {
-        // TODO
-        // self.descriptor.depth_ops.store = store_op;
+        if let Some(mut ops) = self.descriptor.depth_ops {
+            ops.store = store_op;
+        }
         self
     }
 
     /// The value that will be assigned to every pixel of this depth attachment when cleared.
     pub fn clear_depth(mut self, depth: f32) -> Self {
-        // TODO
-        // self.descriptor.depth_ops.load = wgpu::LoadOp::Clear(depth);
+        if let Some(mut ops) = self.descriptor.depth_ops {
+            ops.load = wgpu::LoadOp::Clear(depth);
+        }
         self
     }
 
     /// The beginning-of-pass load operation for this stencil attachment.
     pub fn stencil_load_op(mut self, load_op: wgpu::LoadOp<u32>) -> Self {
-        // TODO
-        // self.descriptor.stencil_ops.load = load_op;
+        if let Some(mut ops) = self.descriptor.stencil_ops {
+            ops.load = load_op;
+        }
         self
     }
 
     /// The end-of-pass store operation for this stencil attachment.
     pub fn stencil_store_op(mut self, store_op: bool) -> Self {
-        // TODO
-        // self.descriptor.stencil_ops.store = store_op;
+        if let Some(mut ops) = self.descriptor.stencil_ops {
+            ops.store = store_op;
+        }
         self
     }
 
     /// The value that will be assigned to every pixel of this stencil attachment when cleared.
     pub fn clear_stencil(mut self, stencil: u32) -> Self {
-        // TODO
-        // self.descriptor.clear_stencil = stencil;
+        if let Some(mut ops) = self.descriptor.stencil_ops {
+            ops.load = wgpu::LoadOp::Clear(stencil);
+        }
         self
     }
 }

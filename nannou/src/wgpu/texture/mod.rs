@@ -381,7 +381,7 @@ impl<'a> TextureView<'a> {
         &self.descriptor
     }
 
-    pub fn descriptor_cloned(&self) -> wgpu::TextureViewDescriptor<'a> {
+    pub fn descriptor_cloned(&self) -> wgpu::TextureViewDescriptor<'static> {
         wgpu::TextureViewDescriptor {
             label: None,
             format: self.format(),
@@ -583,14 +583,12 @@ impl Builder {
 
 impl<'a> ViewBuilder<'a> {
     pub fn format(mut self, format: wgpu::TextureFormat) -> Self {
-        // TODO
-        // self.descriptor.format = format;
+        self.descriptor.format = Some(format);
         self
     }
 
     pub fn dimension(mut self, dimension: wgpu::TextureViewDimension) -> Self {
-        // TODO
-        // self.descriptor.dimension = dimension;
+        self.descriptor.dimension = Some(dimension);
         self
     }
 

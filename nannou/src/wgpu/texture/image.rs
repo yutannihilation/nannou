@@ -325,10 +325,13 @@ impl BufferImage {
         let size = self.size;
         let color_type = self.color_type;
         let buffer_slice = self.buffer.buffer.slice(..);
-        let buffer_future = buffer_slice.map_async(wgpu::MapMode::Read).await;
-        let data = buffer_slice.get_mapped_range();
+        let buffer_future = buffer_slice.map_async(wgpu::MapMode::Read);
 
-        let mapping = self.buffer.read().await?;
+        if let Ok(()) = buffer_future.await {
+            let data = buffer_slice.get_mapped_range();
+        }
+
+        let mapping = self.buffer.read().await;
         Ok(ImageReadMapping {
             color_type,
             size,

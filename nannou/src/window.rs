@@ -800,8 +800,10 @@ impl<'app> Builder<'app> {
             power_preference,
             compatible_surface: Some(&surface),
         };
-        // TODO
-        let adapter = futures::executor::block_on(instance.request_adapter(&request_adapter_opts))
+
+        let adapter = app
+            .wgpu_adapters()
+            .get_or_request(request_adapter_opts, backends)
             .ok_or(BuildError::NoAvailableAdapter)?;
 
         // Instantiate the logical device.

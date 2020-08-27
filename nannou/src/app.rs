@@ -105,7 +105,7 @@ pub struct App<'a> {
     capture_frame_timeout: Option<Duration>,
     pub(crate) event_loop_window_target: Option<EventLoopWindowTarget>,
     pub(crate) event_loop_proxy: Proxy,
-    pub(crate) windows: RefCell<HashMap<window::Id, Window<'a>>>,
+    pub(crate) windows: RefCell<HashMap<window::Id, Window<'static>>>,
     /// A map of active wgpu physial device adapters.
     adapters: wgpu::AdapterMap,
     draw_state: DrawState<'a>,
